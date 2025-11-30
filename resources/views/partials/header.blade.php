@@ -1,20 +1,16 @@
-<nav class="bg-white shadow px-6 py-4 flex justify-between items-center z-40 relative">
-    <div class="flex items-center space-x-4">
-        <button id="sidebarToggle" class="text-gray-600 hover:text-blue-600 focus:outline-none transition-colors p-1 rounded hover:bg-gray-100">
-            <i class="ri-menu-2-line text-2xl"></i>
-        </button>
-        
-        <h1 class="font-bold text-xl text-gray-800 hidden sm:block">Admin Dashboard</h1>
-    </div>
+<header class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 shadow-sm z-10 sticky top-0">
+    
+    <button id="sidebarToggle" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600 focus:outline-none transition-colors">
+        <i class="ri-menu-2-line text-xl"></i>
+    </button>
 
-    <div class="flex items-center space-x-4">
-        <span class="text-gray-600 text-sm hidden sm:block">Hello, <strong>{{ Auth::user()->name }}</strong></span>
-        
-        <form action="{{ route('logout') }}" method="POST">
-            @csrf
-            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white text-sm font-bold py-2 px-4 rounded transition duration-200 flex items-center shadow-md">
-                <i class="ri-logout-box-r-line mr-2"></i> Logout
-            </button>
-        </form>
+    <div class="flex items-center gap-4">
+        <button class="p-2 text-gray-400 hover:text-gray-600 relative">
+            <i class="ri-notification-3-line text-xl"></i>
+            <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+        </button>
+        <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
+            {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+        </div>
     </div>
-</nav>
+</header>
