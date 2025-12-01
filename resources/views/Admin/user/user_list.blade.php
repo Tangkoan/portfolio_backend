@@ -64,7 +64,7 @@
                             <td class="px-6 py-4 text-secondary text-sm" x-text="user.email"></td>
                             <td class="px-6 py-4 text-secondary text-sm" x-text="new Date(user.created_at).toLocaleDateString()"></td>
                             <td class="px-6 py-4 text-right">
-                                <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div class="flex justify-end gap-2 transition-opacity">
                                     <button @click="openModal('edit', user)" class="h-8 w-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 hover:bg-blue-100 transition-colors flex items-center justify-center">
                                         <i class="ri-pencil-line"></i>
                                     </button>
