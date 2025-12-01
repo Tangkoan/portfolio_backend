@@ -54,7 +54,18 @@ Route::middleware('auth')->group(function () {
         return view('admin.theme');
     })->name('admin.theme');
     
+    // Theme
     Route::post('/admin/theme/update', [ThemeController::class, 'update'])->name('admin.theme.update');
+
+
+    // User Info
+    Route::get('/profile', [UserController::class, 'profile'])->name('admin.profile');
+    Route::put('/profile', [UserController::class, 'updateProfile'])->name('admin.profile.update');
+
+    // Change Password
+    Route::get('/password', [UserController::class, 'password'])->name('admin.password');
+    Route::put('/password', [UserController::class, 'updatePassword'])->name('admin.password.update');
+
 });
 
 // require __DIR__.'/auth.php'; // បិទចោលសិន កុំអោយជាន់គ្នាជាមួយ Custom Auth របស់យើង

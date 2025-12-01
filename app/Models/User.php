@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'avatar', // បន្ថែមពាក្យនេះ
         'theme_settings', // ១. បន្ថែមបន្ទាត់នេះ ដើម្បីឱ្យអាច Save ចូល Database បាន
     ];
 

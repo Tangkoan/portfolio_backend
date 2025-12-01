@@ -30,12 +30,12 @@
 
         @php $isUserActive = request()->routeIs('user.*'); @endphp
         
-        <div class="group relative">
+        <div class="group relative ">
             <button onclick="toggleSubmenu(this)" 
                     class="sidebar-item w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer select-none menu-item-content
-                           {{ $isUserActive ? 'bg-black/5 dark:bg-white/10' : '' }}">
-                <div class="flex items-center">
-                    <i class="ri-user-settings-line text-xl menu-icon mr-3 {{ $isUserActive ? 'text-primary' : '' }}"></i>
+                           {{ $isUserActive ? 'btn-primary' : '' }}">
+                <div class="flex items-center ">
+                    <i class="ri-user-settings-line text-xl menu-icon mr-3 "></i>
                     <span class="sidebar-text font-medium">Users</span>
                 </div>
                 <i class="ri-arrow-down-s-line arrow-icon transition-transform duration-300 {{ $isUserActive ? 'rotate-180' : '' }}"></i>

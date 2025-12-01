@@ -8,6 +8,7 @@
     <title>Ice Cream Admin</title>
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('components.toast')
     
     <link href="{{ asset('assets/remixicon/remixicon.css') }}" rel="stylesheet">
 

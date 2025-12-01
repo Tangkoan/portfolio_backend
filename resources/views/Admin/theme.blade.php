@@ -38,6 +38,7 @@
             
             @include('components.color-input', ['label' => 'Primary Background', 'key' => 'primary'])
             @include('components.color-input', ['label' => 'Primary Text Color', 'key' => 'primaryText'])
+            @include('components.color-input', ['label' => 'General Text Color', 'key' => 'textColor'])
             @include('components.color-input', ['label' => 'Secondary Color', 'key' => 'secondary'])
         </div>
 
@@ -70,8 +71,16 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
                 @include('components.color-input', ['label' => 'Page Background', 'key' => 'pageBg'])
                 @include('components.color-input', ['label' => 'Card Background', 'key' => 'cardBg'])
-                @include('components.color-input', ['label' => 'Input/Form Fill', 'key' => 'inputBg'])
-                @include('components.color-input', ['label' => 'Borders', 'key' => 'border'])
+                
+                <div class="col-span-1 md:col-span-2 mt-2 mb-2 pt-2 border-t border-dashed border-gray-200 dark:border-gray-700">
+                     <p class="text-xs font-bold text-gray-400 uppercase mb-3">Form Inputs</p>
+                </div>
+                
+                @include('components.color-input', ['label' => 'Input Background', 'key' => 'inputBg'])
+                
+                @include('components.color-input', ['label' => 'Input Border', 'key' => 'inputBorder'])
+                
+                @include('components.color-input', ['label' => 'Layout Borders', 'key' => 'border'])
             </div>
         </div>
 

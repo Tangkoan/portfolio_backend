@@ -21,6 +21,8 @@ export default {
                 'card-bg': 'rgb(var(--card-bg) / <alpha-value>)',
                 'input-bg': 'rgb(var(--input-bg) / <alpha-value>)',
                 'border-color': 'rgb(var(--custom-border) / <alpha-value>)',
+                // ✅ បន្ថែមថ្មីនៅទីនេះ
+                'input-border': 'rgb(var(--input-border) / <alpha-value>)',
             },
             boxShadow: {
                 'custom': 'var(--custom-shadow)',
