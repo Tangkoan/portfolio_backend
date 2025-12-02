@@ -23,8 +23,11 @@
                        placeholder="Search permissions...">
             </div>
 
-            <button @click="openModal('create')" 
-                    class="bg-primary hover:opacity-90 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-primary/30 transition-all flex items-center gap-2">
+            <button 
+                @role('Super Admin') @click="openModal('create')" @endrole
+                class="bg-primary text-white font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-primary/30 flex items-center gap-2 transition-all
+                       @unlessrole('Super Admin') opacity-50 cursor-not-allowed @else hover:opacity-90 @endunlessrole"
+                @unlessrole('Super Admin') disabled title="Only Super Admin can create permissions" @endunlessrole>
                 <i class="ri-add-line"></i> <span class="hidden sm:inline">Add Permission</span>
             </button>
         </div>
@@ -62,12 +65,23 @@
 
                             <td class="px-6 py-4 text-right">
                                 <div class="flex justify-end gap-2">
-                                    <button @click="openModal('edit', perm)" class="h-8 w-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 hover:bg-blue-100 transition-colors flex items-center justify-center">
+                                    
+                                    <button 
+                                        @role('Super Admin') @click="openModal('edit', perm)" @endrole
+                                        class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors
+                                               @role('Super Admin') bg-blue-50 dark:bg-blue-900/20 text-blue-600 hover:bg-blue-100 @else bg-gray-100 text-gray-400 cursor-not-allowed @endrole"
+                                        @unlessrole('Super Admin') disabled title="Restricted" @endunlessrole>
                                         <i class="ri-pencil-line"></i>
                                     </button>
-                                    <button @click="confirmDelete(perm.id)" class="h-8 w-8 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 transition-colors flex items-center justify-center">
+
+                                    <button 
+                                        @role('Super Admin') @click="confirmDelete(perm.id)" @endrole
+                                        class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors
+                                               @role('Super Admin') bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 @else bg-gray-100 text-gray-400 cursor-not-allowed @endrole"
+                                        @unlessrole('Super Admin') disabled title="Restricted" @endunlessrole>
                                         <i class="ri-delete-bin-line"></i>
                                     </button>
+
                                 </div>
                             </td>
                         </tr>
@@ -137,16 +151,8 @@
 <script>
     function permissionManagement() {
         return {
-            permissions: [],
-            search: '',
-            isModalOpen: false,
-            editMode: false,
-            isLoading: false,
-            pagination: {},
-            form: { id: null, name: '' },
-            errors: {},
+            permissions: [], search: '', isModalOpen: false, editMode: false, isLoading: false, pagination: {}, form: { id: null, name: '' }, errors: {},
 
-            // 1. Fetch
             async fetchPermissions(url = "{{ route('admin.permissions.fetch') }}") {
                 if(this.search) url += (url.includes('?') ? '&' : '?') + `keyword=${this.search}`;
                 try {
@@ -159,23 +165,15 @@
             
             changePage(url) { if(url) this.fetchPermissions(url); },
 
-            // 2. Modal
             openModal(mode, perm = null) {
                 this.isModalOpen = true;
                 this.errors = {};
-                if (mode === 'edit') {
-                    this.editMode = true;
-                    this.form = { id: perm.id, name: perm.name };
-                } else {
-                    this.editMode = false;
-                    this.form = { id: null, name: '' };
-                }
+                if (mode === 'edit') { this.editMode = true; this.form = { id: perm.id, name: perm.name }; }
+                else { this.editMode = false; this.form = { id: null, name: '' }; }
             },
 
-            // 3. Submit
             async submitForm() {
-                this.isLoading = true;
-                this.errors = {};
+                this.isLoading = true; this.errors = {};
                 let url = this.editMode ? `/admin/permissions/${this.form.id}` : "{{ route('admin.permissions.store') }}";
                 let method = this.editMode ? 'PUT' : 'POST';
                 
@@ -191,14 +189,12 @@
                         if (res.status === 422) this.errors = data.errors;
                         else window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: 'Error occurred!' } }));
                     } else {
-                        this.isModalOpen = false;
-                        this.fetchPermissions();
+                        this.isModalOpen = false; this.fetchPermissions();
                         window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: data.message } }));
                     }
                 } catch (e) { console.error(e); } finally { this.isLoading = false; }
             },
             
-            // 4. Delete
             async confirmDelete(id) {
                 if(!confirm('Delete this permission?')) return;
                 try {

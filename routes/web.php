@@ -150,24 +150,24 @@ Route::middleware('auth')->group(function () {
         // មើលបញ្ជី (ប្រើ role:Super Admin ដើម្បីសុវត្ថិភាពខ្ពស់)
         Route::get('/admin/permissions', 'index')
             ->name('admin.permissions.index')
-            ->middleware('role:Super Admin');
+            ->middleware('permission:permission-list');
 
         Route::get('/admin/permissions/fetch', 'fetchPermissions')
             ->name('admin.permissions.fetch')
-            ->middleware('role:Super Admin');
+            ->middleware('permission:permission-list');
 
         // បង្កើត/កែ/លុប Permission
         Route::post('/admin/permissions', 'store')
             ->name('admin.permissions.store')
-            ->middleware('role:Super Admin');
+            ->middleware('permission:permission-create');
 
         Route::put('/admin/permissions/{id}', 'update')
             ->name('admin.permissions.update')
-            ->middleware('role:Super Admin');
+            ->middleware('permission:permission-edit');
 
         Route::delete('/admin/permissions/{id}', 'destroy')
             ->name('admin.permissions.destroy')
-            ->middleware('role:Super Admin');
+            ->middleware('permission:permission-delete');
     });
 });
 

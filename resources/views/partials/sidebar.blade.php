@@ -25,7 +25,8 @@
         </div>
 
         {{-- ពិនិត្យមើលសិនថា តើ User មានសិទ្ធិមើល Menu ណាមួយក្នុង Group នេះឬអត់? --}}
-        @if(auth()->user()->can('user-list') || auth()->user()->can('role-list') || auth()->user()->hasRole('Super Admin'))
+        @if(auth()->user()->can('user-list') || auth()->user()->can('role-list') || auth()->user()->can('permission-list') || auth()->user()->hasRole('Super Admin'))
+            
             <div class="px-4 mt-6 mb-2 sidebar-text">
                 <span class="text-[11px] font-bold opacity-50 uppercase tracking-wider">User Management</span>
             </div>
@@ -35,9 +36,9 @@
             <div class="group relative">
                 <button onclick="toggleSubmenu(this)" 
                         class="sidebar-item w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer select-none menu-item-content
-                               {{ $isUserActive ? 'btn-primary' : '' }}">
+                               {{ $isUserActive ? 'bg-black/5 dark:bg-white/10' : '' }}">
                     <div class="flex items-center">
-                        <i class="ri-user-settings-line text-xl menu-icon mr-3"></i>
+                        <i class="ri-user-settings-line text-xl menu-icon mr-3 {{ $isUserActive ? 'text-primary' : '' }}"></i>
                         <span class="sidebar-text font-medium">Users & Access</span>
                     </div>
                     <i class="ri-arrow-down-s-line arrow-icon transition-transform duration-300 {{ $isUserActive ? 'rotate-180' : '' }}"></i>
@@ -47,7 +48,7 @@
                     <div class="tree-line absolute left-[26px] top-0 bottom-2 w-px bg-custom-border opacity-50"></div>
                     <ul class="space-y-1 mt-1">
                         
-                        {{-- 1. User List (Check Permission) --}}
+                        {{-- 1. User List --}}
                         @can('user-list')
                         <li>
                             <a href="{{ route('user.list') }}" 
@@ -60,7 +61,7 @@
                         </li>
                         @endcan
 
-                        {{-- 2. Role & Permission (Check Permission) --}}
+                        {{-- 2. Role & Permission --}}
                         @can('role-list')
                         <li>
                             <a href="{{ route('admin.roles.index') }}" 
@@ -73,8 +74,8 @@
                         </li>
                         @endcan
 
-                        {{-- 3. Permission List (Super Admin Only) --}}
-                        @role('Super Admin') 
+                        {{-- 3. Permission List --}}
+                        @can('permission-list')
                         <li>
                             <a href="{{ route('admin.permissions.index') }}" 
                                class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
@@ -84,7 +85,7 @@
                                 <span>Permissions List</span>
                             </a>
                         </li>
-                        @endrole
+                        @endcan
 
                     </ul>
                 </div>

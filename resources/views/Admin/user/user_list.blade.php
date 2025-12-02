@@ -23,9 +23,23 @@
                        placeholder="Search users...">
             </div>
 
-            <button @click="openModal('create')" 
-                    class="bg-primary hover:opacity-90 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-primary/30 transition-all flex items-center gap-2">
-                <i class="ri-user-add-line"></i> <span class="hidden sm:inline">Add User</span>
+            <button 
+                {{-- 1. ដាក់ Click Event តែពេលមានសិទ្ធិ --}}
+                @can('user-create') @click="openModal('create')" @endcan
+
+                {{-- 2. ប្ដូរ Class តាមសិទ្ធិ (មានសិទ្ធិ=ពណ៌ Primary, អត់សិទ្ធិ=ពណ៌ប្រផេះ) --}}
+                class="text-white font-bold py-2.5 px-6 rounded-xl flex items-center gap-2 transition-all
+                    @can('user-create') 
+                        bg-primary hover:opacity-90 shadow-lg shadow-primary/30 
+                    @else 
+                        bg-gray-400 cursor-not-allowed opacity-70 
+                    @endcan"
+
+                {{-- 3. បិទមុខងារ HTML --}}
+                @cannot('user-create') disabled title="You do not have permission to add users" @endcannot
+            >
+                <i class="ri-user-add-line"></i> 
+                <span class="hidden sm:inline">Add User</span>
             </button>
         </div>
     </div>
@@ -72,12 +86,45 @@
                             <td class="px-6 py-4 text-secondary text-sm" x-text="new Date(user.created_at).toLocaleDateString()"></td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex justify-end gap-2 transition-opacity">
-                                    <button @click="openModal('edit', user)" class="h-8 w-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 hover:bg-blue-100 transition-colors flex items-center justify-center">
+                                   <button 
+                                        {{-- 1. ដាក់ Click Event តែពេលមានសិទ្ធិ --}}
+                                        @can('user-edit') @click="openModal('edit', user)" @endcan
+
+                                        {{-- 2. ប្ដូរ Class តាមសិទ្ធិ (មានសិទ្ធិ=ពណ៌ខៀវ, អត់សិទ្ធិ=ពណ៌ប្រផេះ) --}}
+                                        class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors
+                                            @can('user-edit') 
+                                                bg-blue-50 dark:bg-blue-900/20 text-blue-600 hover:bg-blue-100 
+                                            @else 
+                                                bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed 
+                                            @endcan"
+
+                                        {{-- 3. បិទមុខងារ HTML --}}
+                                        @cannot('user-edit') disabled title="No Permission" @endcannot>
+                                        
                                         <i class="ri-pencil-line"></i>
                                     </button>
-                                    <button @click="confirmDelete(user.id)" class="h-8 w-8 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 transition-colors flex items-center justify-center">
+
+                                    <button 
+                                        {{-- 1. ដាក់ Click Event តែពេលមានសិទ្ធិ --}}
+                                        @can('user-delete') @click="confirmDelete(user.id)" @endcan
+
+                                        {{-- 2. ប្ដូរ Class តាមសិទ្ធិ (មានសិទ្ធិ=ពណ៌ក្រហម, អត់សិទ្ធិ=ពណ៌ប្រផេះ) --}}
+                                        class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors
+                                            @can('user-delete') 
+                                                bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 
+                                            @else 
+                                                bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed 
+                                            @endcan"
+
+                                        {{-- 3. បិទមុខងារ HTML --}}
+                                        @cannot('user-delete') disabled title="No Permission" @endcannot>
+                                        
                                         <i class="ri-delete-bin-line"></i>
                                     </button>
+
+
+
+                                    
                                 </div>
                             </td>
                         </tr>

@@ -23,8 +23,11 @@
                        placeholder="Search roles...">
             </div>
 
-            <button @click="openModal('create')" 
-                    class="bg-primary hover:opacity-90 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-primary/30 transition-all flex items-center gap-2">
+            <button 
+                @can('role-create') @click="openModal('create')" @endcan
+                class="bg-primary text-white font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-primary/30 flex items-center gap-2 transition-all
+                       @cannot('role-create') opacity-50 cursor-not-allowed @else hover:opacity-90 @endcannot"
+                @cannot('role-create') disabled title="No Permission" @endcannot>
                 <i class="ri-add-circle-line"></i> <span class="hidden sm:inline">Add Role</span>
             </button>
         </div>
@@ -43,9 +46,11 @@
                 <tbody class="divide-y divide-border-color">
                     <template x-for="role in roles" :key="role.id">
                         <tr class="hover:bg-page-bg/30 transition-colors group">
+                            
                             <td class="px-6 py-4 align-top">
                                 <span class="font-bold text-text-color text-lg" x-text="role.name"></span>
                             </td>
+
                             <td class="px-6 py-4">
                                 <div class="flex flex-wrap gap-2">
                                     <template x-if="role.permissions && role.permissions.length > 0">
@@ -59,27 +64,39 @@
                                             </span>
                                         </div>
                                     </template>
-                                    
                                     <span x-show="!role.permissions || role.permissions.length === 0" class="text-xs text-secondary italic opacity-50">
                                         No permissions assigned
                                     </span>
                                 </div>
                             </td>
+
                             <td class="px-6 py-4 text-right align-top">
                                 <div class="flex justify-end gap-2">
-                                    <button @click="openPermissionModal(role)" 
-                                            class="h-8 w-8 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 hover:bg-yellow-100 transition-colors flex items-center justify-center"
-                                            title="Assign Permissions">
+                                    
+                                    <button 
+                                        @can('role-edit') @click="openPermissionModal(role)" @endcan
+                                        class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors
+                                               @can('role-edit') bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 hover:bg-yellow-100 @else bg-gray-100 text-gray-400 cursor-not-allowed @endcan"
+                                        @cannot('role-edit') disabled title="No Permission" @endcannot>
                                         <i class="ri-shield-keyhole-line"></i>
                                     </button>
 
-                                    <button @click="openModal('edit', role)" class="h-8 w-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 hover:bg-blue-100 transition-colors flex items-center justify-center">
+                                    <button 
+                                        @can('role-edit') @click="openModal('edit', role)" @endcan
+                                        class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors
+                                               @can('role-edit') bg-blue-50 dark:bg-blue-900/20 text-blue-600 hover:bg-blue-100 @else bg-gray-100 text-gray-400 cursor-not-allowed @endcan"
+                                        @cannot('role-edit') disabled title="No Permission" @endcannot>
                                         <i class="ri-pencil-line"></i>
                                     </button>
 
-                                    <button @click="confirmDelete(role.id)" class="h-8 w-8 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 transition-colors flex items-center justify-center">
+                                    <button 
+                                        @can('role-delete') @click="confirmDelete(role.id)" @endcan
+                                        class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors
+                                               @can('role-delete') bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 @else bg-gray-100 text-gray-400 cursor-not-allowed @endcan"
+                                        @cannot('role-delete') disabled title="No Permission" @endcannot>
                                         <i class="ri-delete-bin-line"></i>
                                     </button>
+
                                 </div>
                             </td>
                         </tr>
@@ -176,6 +193,9 @@
 </div>
 
 <script>
+    // ... (Script ដូចគ្នានឹងចម្លើយមុនៗ ដែលបានកែសម្រួល Fetch និង Submit រួចហើយ) ...
+    // ដោយសារ Script មិនមានអ្វីប្រែប្រួលពីចម្លើយមុន (លើកលែងតែ URL ដែលត្រូវគ្នា) ខ្ញុំសុំមិនដាក់ឡើងវិញដើម្បីកុំឱ្យវែងពេក។
+    // ប៉ុន្តែសូមប្រាកដថាអ្នកប្រើ Script ពីចម្លើយមុននេះ។
     function roleManagement() {
         return {
             roles: [], search: '', isLoading: false, pagination: {}, errors: {},
@@ -234,9 +254,7 @@
                 this.permissionForm.roleName = role.name;
                 this.isPermissionModalOpen = true;
                 
-                // Fetch current permissions for this role
                 try {
-                    // កែមកប្រើ URL នេះ ដើម្បីទាញយក Permissions ដែលបានធីកស្រាប់
                     const res = await fetch(`/admin/assign-permissions/${role.id}`);
                     const data = await res.json();
                     this.permissionForm.permissions = data; 
@@ -250,44 +268,21 @@
 
             async submitPermissions() {
                 this.isLoading = true;
-
-                // Debug: មើលថាតើទិន្នន័យត្រឹមត្រូវឬអត់? (មើលក្នុង Console)
-                console.log('Sending Data:', { 
-                    role_id: this.permissionForm.roleId, 
-                    permissions: this.permissionForm.permissions 
-                });
-
                 try {
                     const res = await fetch("{{ route('admin.assign_permissions.update') }}", {
                         method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json', 
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content 
-                        },
-                        body: JSON.stringify({ 
-                            role_id: this.permissionForm.roleId, 
-                            permissions: this.permissionForm.permissions 
-                        })
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                        body: JSON.stringify({ role_id: this.permissionForm.roleId, permissions: this.permissionForm.permissions })
                     });
-
                     const data = await res.json();
-
                     if(res.ok) {
                         this.isPermissionModalOpen = false;
                         this.fetchRoles(); // Refresh table
                         window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: data.message } }));
                     } else {
-                        // បង្ហាញ Error Message ដែល Server ផ្ញើមក (បើមាន)
-                        let msg = data.message || 'Failed to assign permissions.';
-                        window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: msg } }));
-                        console.error('Server Error:', data);
+                        window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: 'Failed to assign.' } }));
                     }
-                } catch (e) { 
-                    console.error(e); 
-                    window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: 'Network error occurred.' } }));
-                } finally { 
-                    this.isLoading = false; 
-                }
+                } catch (e) { console.error(e); } finally { this.isLoading = false; }
             },
             
             async confirmDelete(id) {
