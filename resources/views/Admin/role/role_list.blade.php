@@ -13,29 +13,28 @@
         <div class="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto">
             
             <div x-show="selectedIds.length > 0" x-transition.opacity.duration.300ms 
-                 class="flex items-center gap-2 mr-2 w-full sm:w-auto justify-between sm:justify-start bg-white dark:bg-gray-800 p-1 rounded-lg border border-border-color shadow-sm">
-                
+                 class="flex items-center gap-2 mr-2 bg-white dark:bg-gray-800 p-1 rounded-lg border border-border-color shadow-sm">
                 <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-1.5 rounded ml-1 whitespace-nowrap" x-text="selectedIds.length + ' selected'"></span>
                 
                 <div class="flex gap-1">
                     @can('role-edit')
-                    <button @click="startSequentialEdit()" class="text-sm font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-md transition border border-transparent hover:border-blue-100" title="Edit Sequence">
-                        <i class="ri-edit-circle-line mr-1"></i> <span class="hidden sm:inline">Edit</span>
+                    <button @click="startSequentialEdit()" class="text-sm font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-md transition" title="Edit Sequence">
+                        <i class="ri-edit-circle-line mr-1"></i> Edit
                     </button>
                     @endcan
 
                     @can('role-delete')
-                    <button @click="confirmBulkDelete()" class="text-sm font-bold text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-md transition border border-transparent hover:border-red-100" title="Delete Selected">
-                        <i class="ri-delete-bin-line mr-1"></i> <span class="hidden sm:inline">Delete</span>
+                    <button @click="confirmBulkDelete()" class="text-sm font-bold text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-md transition" title="Delete Selected">
+                        <i class="ri-delete-bin-line mr-1"></i> Delete
                     </button>
                     @endcan
                 </div>
             </div>
 
-            <div class="relative w-full sm:w-auto" x-data="{ openCol: false }">
+            <div class="relative" x-data="{ openCol: false }">
                 <button @click="openCol = !openCol" @click.outside="openCol = false" 
-                        class="w-full sm:w-auto flex justify-center items-center gap-2 px-3 py-2.5 bg-card-bg border border-input-border rounded-xl text-text-color hover:bg-input-bg transition text-sm font-medium shadow-sm">
-                    <i class="ri-layout-column-line"></i> <span class="sm:hidden lg:inline">Columns</span>
+                        class="flex justify-center items-center gap-2 px-3 py-2.5 bg-card-bg border border-input-border rounded-xl text-text-color hover:bg-input-bg transition text-sm font-medium shadow-sm">
+                    <i class="ri-layout-column-line"></i> Columns
                 </button>
                 <div x-show="openCol" class="absolute right-0 mt-2 w-48 bg-card-bg border border-border-color rounded-xl shadow-xl z-50 p-2" style="display: none;" x-transition>
                     <div class="space-y-1">
@@ -64,7 +63,7 @@
                 @can('role-create') @click="openModal('create')" @endcan
                 class="w-full sm:w-auto text-white font-bold py-2.5 px-6 rounded-xl flex justify-center items-center gap-2 transition-all shadow-lg shadow-primary/30 whitespace-nowrap
                 @can('role-create') bg-primary hover:opacity-90 @else bg-gray-400 cursor-not-allowed opacity-70 @endcan"
-                @cannot('role-create') disabled title="No Permission" @endcannot
+                @cannot('role-create') disabled @endcannot
             >
                 <i class="ri-add-circle-line"></i> 
                 <span>Add Role</span>
@@ -89,15 +88,12 @@
                 <tbody class="divide-y divide-border-color">
                     <template x-for="role in roles" :key="role.id">
                         <tr class="hover:bg-page-bg/30 transition-colors group" :class="{'bg-primary/5': selectedIds.includes(role.id)}">
-                            
                             <td class="px-6 py-4 align-top">
                                 <input type="checkbox" :value="role.id" x-model="selectedIds" class="rounded border-input-border text-primary focus:ring-primary h-4 w-4 cursor-pointer">
                             </td>
-
                             <td class="px-6 py-4 align-top">
                                 <span class="font-bold text-text-color text-lg" x-text="role.name"></span>
                             </td>
-
                             <td class="px-6 py-4" x-show="showCols.permissions">
                                 <div class="flex flex-wrap gap-2">
                                     <template x-if="role.permissions && role.permissions.length > 0">
@@ -116,18 +112,16 @@
                                     </span>
                                 </div>
                             </td>
-
                             <td class="px-6 py-4 text-center align-top" x-show="showCols.users_count">
                                 <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-blue-100 bg-blue-600 rounded-full" x-text="role.users_count || 0"></span>
                             </td>
-
                             <td class="px-6 py-4 text-right align-top">
                                 <div class="flex justify-end gap-2 transition-opacity">
                                     <button 
-                                        @can('role-edit') @click="openPermissionModal(role)" @endcan
+                                        @can('role-assign') @click="openPermissionModal(role)" @endcan
                                         class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors
-                                               @can('role-edit') bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 hover:bg-yellow-100 @else bg-gray-100 text-gray-400 cursor-not-allowed @endcan"
-                                        @cannot('role-edit') disabled title="No Permission" @endcannot>
+                                               @can('role-assign') bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 hover:bg-yellow-100 @else bg-gray-100 text-gray-400 cursor-not-allowed @endcan"
+                                        @cannot('role-assign') disabled @endcannot>
                                         <i class="ri-shield-keyhole-line"></i>
                                     </button>
 
@@ -135,7 +129,7 @@
                                         @can('role-edit') @click="openModal('edit', role)" @endcan
                                         class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors
                                                @can('role-edit') bg-blue-50 dark:bg-blue-900/20 text-blue-600 hover:bg-blue-100 @else bg-gray-100 text-gray-400 cursor-not-allowed @endcan"
-                                        @cannot('role-edit') disabled title="No Permission" @endcannot>
+                                        @cannot('role-edit') disabled @endcannot>
                                         <i class="ri-pencil-line"></i>
                                     </button>
 
@@ -143,7 +137,7 @@
                                         @can('role-delete') @click="confirmDelete(role.id)" @endcan
                                         class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors
                                                @can('role-delete') bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 @else bg-gray-100 text-gray-400 cursor-not-allowed @endcan"
-                                        @cannot('role-delete') disabled title="No Permission" @endcannot>
+                                        @cannot('role-delete') disabled @endcannot>
                                         <i class="ri-delete-bin-line"></i>
                                     </button>
                                 </div>
@@ -161,37 +155,29 @@
         </div>
         
         <x-pagination x-model="perPage" @change="fetchRoles()" />
-
     </div>
 
     <div x-show="isModalOpen" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center px-4" x-cloak>
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closeModal()"></div>
         <div class="relative w-full max-w-md bg-card-bg rounded-2xl shadow-2xl border border-border-color overflow-hidden" 
              x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95 translate-y-4" x-transition:enter-end="opacity-100 scale-100 translate-y-0">
-            
             <div class="px-6 py-4 border-b border-border-color flex justify-between items-center" :class="isSequenceMode ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-page-bg/30'">
                 <div>
                     <h3 class="text-lg font-bold text-text-color" x-text="editMode ? 'Edit Role' : 'Create New Role'"></h3>
                     <template x-if="isSequenceMode">
-                        <p class="text-xs text-primary font-bold mt-1">
-                            Editing role <span x-text="currentSeqIndex + 1"></span> of <span x-text="sequenceQueue.length"></span>
-                        </p>
+                        <p class="text-xs text-primary font-bold mt-1">Editing role <span x-text="currentSeqIndex + 1"></span> of <span x-text="sequenceQueue.length"></span></p>
                     </template>
                 </div>
                 <button @click="closeModal(true)" class="text-secondary hover:text-text-color"><i class="ri-close-line text-xl"></i></button>
             </div>
-
             <form @submit.prevent="submitForm" class="p-6 space-y-4">
                 <div>
                     <label class="block text-sm font-bold text-text-color mb-1">Role Name</label>
                     <input type="text" x-model="form.name" class="w-full px-4 py-2.5 rounded-lg border border-input-border bg-input-bg text-text-color focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" placeholder="e.g., Manager">
                     <p x-show="errors.name" x-text="errors.name" class="text-red-500 text-xs mt-1"></p>
                 </div>
-
                 <div class="pt-4 flex justify-between items-center border-t border-border-color mt-2">
-                    <button type="button" x-show="isSequenceMode" @click="nextInSequence()" class="text-secondary hover:text-text-color text-sm font-bold px-2">
-                        Skip <i class="ri-arrow-right-line align-middle"></i>
-                    </button>
+                    <button type="button" x-show="isSequenceMode" @click="nextInSequence()" class="text-secondary hover:text-text-color text-sm font-bold px-2">Skip <i class="ri-arrow-right-line align-middle"></i></button>
                     <div x-show="!isSequenceMode"></div> 
                     <div class="flex gap-3">
                         <button type="button" @click="closeModal(true)" class="px-4 py-2 rounded-lg border border-input-border text-text-color hover:bg-page-bg transition">Cancel</button>
@@ -233,16 +219,19 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                    @foreach($permissions as $perm)
-                    <label class="flex items-center space-x-3 p-3 rounded-xl border border-input-border bg-input-bg hover:border-primary/50 cursor-pointer transition-all hover:shadow-sm select-none">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" value="{{ $perm->name }}" x-model="permissionForm.permissions"
-                                   class="peer w-5 h-5 cursor-pointer appearance-none rounded border border-input-border checked:bg-primary checked:border-primary transition-all">
-                            <i class="ri-check-line absolute text-white text-sm opacity-0 peer-checked:opacity-100 pointer-events-none left-[2px]"></i>
-                        </div>
-                        <span class="text-sm text-text-color capitalize font-medium">{{ str_replace('-', ' ', $perm->name) }}</span>
-                    </label>
-                    @endforeach
+                    <template x-for="perm in allAvailablePermissions" :key="perm.id">
+                        <label class="flex items-center space-x-3 p-3 rounded-xl border border-input-border bg-input-bg hover:border-primary/50 cursor-pointer transition-all hover:shadow-sm select-none">
+                            <div class="relative flex items-center">
+                                <input type="checkbox" :value="perm.name" x-model="permissionForm.permissions"
+                                       class="peer w-5 h-5 cursor-pointer appearance-none rounded border border-input-border checked:bg-primary checked:border-primary transition-all">
+                                <i class="ri-check-line absolute text-white text-sm opacity-0 peer-checked:opacity-100 pointer-events-none left-[2px]"></i>
+                            </div>
+                            <span class="text-sm text-text-color capitalize font-medium" x-text="perm.name.replace(/-/g, ' ')"></span>
+                        </label>
+                    </template>
+                    <div x-show="allAvailablePermissions.length === 0" class="col-span-full text-center text-gray-500 py-4">
+                        No assignable permissions found.
+                    </div>
                 </div>
             </div>
 
@@ -260,27 +249,20 @@
 <script>
     function roleManagement() {
         return {
-            roles: [],
-            search: '',
-            isLoading: false,
-            pagination: {},
-            errors: {},
+            roles: [], search: '', isLoading: false, pagination: {}, errors: {},
+            perPage: '10', selectedIds: [], selectAll: false,
             
-            // New: Bulk Features
-            perPage: '10',
-            selectedIds: [],
-            selectAll: false,
-            
-            // New: Sequential Edit
-            isSequenceMode: false,
-            sequenceQueue: [],
-            currentSeqIndex: 0,
-            
+            // Sequential Edit
+            isSequenceMode: false, sequenceQueue: [], currentSeqIndex: 0,
             showCols: JSON.parse(localStorage.getItem('role_table_cols')) || { permissions: true, users_count: true },
 
             // Modal State
             isModalOpen: false, editMode: false, form: { id: null, name: '' },
-            isPermissionModalOpen: false, permissionForm: { roleId: null, roleName: '', permissions: [] },
+            
+            // Permission Modal State (Updated)
+            isPermissionModalOpen: false, 
+            allAvailablePermissions: [], // New: Store list from API
+            permissionForm: { roleId: null, roleName: '', permissions: [] },
 
             init() {
                 this.$watch('showCols', (value) => localStorage.setItem('role_table_cols', JSON.stringify(value)));
@@ -291,7 +273,6 @@
                 const params = new URLSearchParams();
                 if(this.search) params.append('keyword', this.search);
                 params.append('per_page', this.perPage);
-                
                 url = url.split('?')[0] + '?' + params.toString();
 
                 try {
@@ -299,82 +280,47 @@
                     const data = await res.json();
                     this.roles = data.data;
                     this.pagination = { total: data.total, from: data.from, to: data.to, prev_page_url: data.prev_page_url, next_page_url: data.next_page_url };
-                    
-                    // Reset Checkboxes on refresh
                     this.selectedIds = [];
                     this.selectAll = false;
                 } catch (e) { console.error(e); }
             },
             
             changePage(url) { if(url) this.fetchRoles(url); },
+            toggleSelectAll() { this.selectedIds = this.selectAll ? this.roles.map(role => role.id) : []; },
 
-            // Checkbox Logic
-            toggleSelectAll() {
-                this.selectedIds = this.selectAll ? this.roles.map(role => role.id) : [];
-            },
-
-            // --- BULK EDIT (Sequential) ---
+            // --- BULK EDIT ---
             startSequentialEdit() {
                 const selectedIdsString = this.selectedIds.map(id => String(id));
                 this.sequenceQueue = this.roles.filter(role => selectedIdsString.includes(String(role.id)));
-                
                 if (this.sequenceQueue.length === 0) return;
-
-                this.isSequenceMode = true;
-                this.currentSeqIndex = 0;
-                this.loadRoleToForm(this.sequenceQueue[0]);
-                this.isModalOpen = true;
+                this.isSequenceMode = true; this.currentSeqIndex = 0;
+                this.loadRoleToForm(this.sequenceQueue[0]); this.isModalOpen = true;
             },
-
             nextInSequence() {
                 this.currentSeqIndex++;
-                if (this.currentSeqIndex < this.sequenceQueue.length) {
-                    this.loadRoleToForm(this.sequenceQueue[this.currentSeqIndex]);
-                } else {
-                    this.closeModal(true);
-                    this.fetchRoles();
-                    window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: 'Bulk update completed!' } }));
-                }
+                if (this.currentSeqIndex < this.sequenceQueue.length) this.loadRoleToForm(this.sequenceQueue[this.currentSeqIndex]);
+                else { this.closeModal(true); this.fetchRoles(); window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: 'Bulk update completed!' } })); }
             },
 
-            // --- CRUD Logic ---
+            // --- CRUD ---
             openModal(mode, role = null) {
-                this.isSequenceMode = false;
-                this.isModalOpen = true;
-                this.errors = {};
-                if (mode === 'edit') {
-                    this.loadRoleToForm(role);
-                } else {
-                    this.editMode = false;
-                    this.form = { id: null, name: '' };
-                }
+                this.isSequenceMode = false; this.isModalOpen = true; this.errors = {};
+                if (mode === 'edit') this.loadRoleToForm(role);
+                else { this.editMode = false; this.form = { id: null, name: '' }; }
             },
-
-            loadRoleToForm(role) {
-                this.editMode = true;
-                this.form = { id: role.id, name: role.name };
-                this.errors = {};
-            },
-
+            loadRoleToForm(role) { this.editMode = true; this.form = { id: role.id, name: role.name }; this.errors = {}; },
             closeModal(force = false) {
                 if (!force && this.isSequenceMode && !confirm("Stop editing sequence?")) return;
-                this.isModalOpen = false;
-                this.isSequenceMode = false;
-                this.selectedIds = [];
-                this.fetchRoles();
+                this.isModalOpen = false; this.isSequenceMode = false; this.selectedIds = []; this.fetchRoles();
             },
-
             async submitForm() {
                 this.isLoading = true; this.errors = {};
                 let url = this.editMode ? `/admin/roles/${this.form.id}` : "{{ route('admin.roles.store') }}";
                 let method = this.editMode ? 'PUT' : 'POST';
-                
                 try {
                     const res = await fetch(url, {
                         method: method,
-                        headers: { 'Content-Type': 'application/json',
-                        'Accept': 'application/json', // <--- បន្ថែមបន្ទាត់នេះ
-                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
                         body: JSON.stringify(this.form)
                     });
                     const data = await res.json();
@@ -383,61 +329,54 @@
                         else window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: 'Error occurred!' } }));
                     } else {
                         window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: data.message } }));
-                        if (this.isSequenceMode) this.nextInSequence();
-                        else { this.isModalOpen = false; this.fetchRoles(); }
+                        if (this.isSequenceMode) this.nextInSequence(); else { this.isModalOpen = false; this.fetchRoles(); }
                     }
                 } catch (e) { console.error(e); } finally { this.isLoading = false; }
             },
 
-            // --- DELETE Logic ---
-            async confirmDelete(id) {
-                askConfirm(async () => { await this.performDelete([id]); });
-            },
-
-            async confirmBulkDelete() {
-                if (this.selectedIds.length === 0) return;
-                askConfirm(async () => { await this.performDelete(this.selectedIds, true); });
-            },
-
+            // --- DELETE ---
+            async confirmDelete(id) { askConfirm(async () => { await this.performDelete([id]); }); },
+            async confirmBulkDelete() { if (this.selectedIds.length === 0) return; askConfirm(async () => { await this.performDelete(this.selectedIds, true); }); },
             async performDelete(ids, isBulk = false) {
                 let url = isBulk ? "{{ route('admin.roles.bulk_delete') }}" : `/admin/roles/${ids[0]}`;
                 let method = isBulk ? 'POST' : 'DELETE';
                 let body = isBulk ? JSON.stringify({ ids: ids }) : null;
-
                 try {
-                    const response = await fetch(url, {
+                    const res = await fetch(url, {
                         method: method,
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
                         body: body
                     });
-                    
-                    const data = await response.json();
-
-                    if(response.ok) {
-                        this.selectedIds = [];
-                        this.selectAll = false;
-                        this.fetchRoles();
+                    const data = await res.json();
+                    if(res.ok) {
+                        this.selectedIds = []; this.selectAll = false; this.fetchRoles();
                         window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: data.message } }));
-                    } else {
-                        // Handle error (e.g., Role has users assigned - 422 Unprocessable Entity)
-                        window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: data.message || 'Cannot delete.' } }));
-                    }
+                    } else window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: data.message || 'Cannot delete.' } }));
                 } catch(e) { console.error(e); }
             },
 
-            // --- PERMISSION Logic ---
+            // --- PERMISSION Logic (Updated) ---
             async openPermissionModal(role) {
                 this.permissionForm.roleId = role.id;
                 this.permissionForm.roleName = role.name;
                 this.isPermissionModalOpen = true;
+                
+                // Clear old data
+                this.allAvailablePermissions = [];
+                this.permissionForm.permissions = [];
+
                 try {
                     const res = await fetch(`/admin/assign-permissions/${role.id}`);
-                    this.permissionForm.permissions = await res.json(); 
+                    const data = await res.json();
+                    
+                    // Assign Data from API
+                    this.allAvailablePermissions = data.available_permissions;
+                    this.permissionForm.permissions = data.checked_permissions; 
                 } catch (e) { console.error(e); }
             },
 
             selectAllPermissions() {
-                this.permissionForm.permissions = @json($permissions->pluck('name'));
+                this.permissionForm.permissions = this.allAvailablePermissions.map(p => p.name);
             },
 
             async submitPermissions() {
@@ -445,15 +384,14 @@
                 try {
                     const res = await fetch("{{ route('admin.assign_permissions.update') }}", {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
                         body: JSON.stringify({ role_id: this.permissionForm.roleId, permissions: this.permissionForm.permissions })
                     });
                     const data = await res.json();
                     if(res.ok) {
-                        this.isPermissionModalOpen = false;
-                        this.fetchRoles();
+                        this.isPermissionModalOpen = false; this.fetchRoles();
                         window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: data.message } }));
-                    }
+                    } else window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: data.message || 'Failed.' } }));
                 } catch (e) { console.error(e); } finally { this.isLoading = false; }
             }
         }

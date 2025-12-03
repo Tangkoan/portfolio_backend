@@ -220,14 +220,15 @@
         
     </div>
 
-    <div class="fixed bottom-6 right-6 flex flex-col gap-2 z-50">
-        <a href="{{ route('admin.theme') }}" 
-           class="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:scale-110 transition-transform flex items-center justify-center"
-           :style="'background-color: rgb(' + $store.theme.settings[$store.theme.darkMode ? 'dark' : 'light'].primary + ')'"
+    {{-- <div class="fixed bottom-6 right-6 flex flex-col gap-2 z-50">
+        <a href="https://t.me/Vannchinh11" 
+        target="_blank"
+        class="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:scale-110 transition-transform flex items-center justify-center"
+        :style="'background-color: rgb(' + $store.theme.settings[$store.theme.darkMode ? 'dark' : 'light'].primary + ')'"
         >
-            <i class="ri-palette-line text-xl"></i>
+            <i class="ri-telegram-line text-xl"></i>
         </a>
-    </div>
+    </div> --}}
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {

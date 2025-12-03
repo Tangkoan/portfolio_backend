@@ -24,7 +24,9 @@ return [
          * `Spatie\Permission\Contracts\Role` contract.
          */
 
-        'role' => Spatie\Permission\Models\Role::class,
+        // 'role' => Spatie\Permission\Models\Role::class,
+        // កែពី Spatie\Permission\Models\Role::class មកជា៖
+        'role' => App\Models\Role::class,
 
     ],
 

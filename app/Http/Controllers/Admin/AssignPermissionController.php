@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
+// use Spatie\Permission\Models\Role;
+use App\Models\Role; // <--- ដាក់អាថ្មីរបស់អ្នកចូល
 use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\Auth; // <--- ត្រូវប្រាកដថាមាន (សំខាន់ណាស់)
 
 use Illuminate\Support\Facades\Log;      // ៣. សម្រាប់មើល Log បើមាន Error
 
@@ -18,64 +20,110 @@ class AssignPermissionController extends Controller
         return abort(404);
     }
 
-    // 2. ទាញយក Permission ដែល Role នោះមានស្រាប់ (ពេលរើស Role)
-   // API: ទាញយក Permission ដែល Role មានស្រាប់
-    public function fetchRolePermissions($roleId)
-    {
-        try {
-            $role = Role::findById($roleId);
-            // បញ្ជូនត្រលប់ជា Array នៃឈ្មោះ Permission (String)
-            return response()->json($role->permissions->pluck('name'));
-        } catch (\Exception $e) {
-            return response()->json([], 200); // បើ Role រកមិនឃើញ បញ្ជូន array ទទេ
-        }
-    }
-
-    // API: Save Permissions (កន្លែងដែលចេញ Error 500)
-    public function update(Request $request)
-    {
-        // ១. Validation
-        $request->validate([
-            'role_id' => 'required|exists:roles,id',
-            'permissions' => 'present|array' // present: ត្រូវតែមាន key នេះ ទោះវាជា array ទទេក៏ដោយ
-        ]);
-
-        try {
-            // ២. រក Role
-            $role = Role::findById($request->role_id);
-
-            // ៣. Sync Permissions (លុបចាស់ ដាក់ថ្មី)
-            // សំខាន់៖ Spatie ត្រូវការឈ្មោះ Permission (String) ក្នុង Array
-            $role->syncPermissions($request->permissions);
-
-            return response()->json(['message' => 'Permissions assigned successfully!']);
-
-        } catch (\Exception $e) {
-            // បើមាន Error, កត់ត្រាចូល Log ហើយប្រាប់ទៅ JS វិញ
-            Log::error($e->getMessage());
-            return response()->json(['message' => 'Server Error: ' . $e->getMessage()], 500);
-        }
-    }
-
     /**
-     * កំណត់សិទ្ធិដែល Admin អាចចែកឱ្យគេបាន
+     * Logic កំណត់ថាអ្នកណាអាចផ្ដល់សិទ្ធិអ្វីបានខ្លះ
      */
     private function getAssignablePermissions($user)
     {
         if ($user->hasRole('Super Admin')) {
-            // Super Admin: អាចចែកបានគ្រប់សិទ្ធិ
             return Permission::all()->pluck('name')->toArray();
-        } 
-        
-        if ($user->hasRole('Admin')) {
-            // Admin: មានសិទ្ធិប្រើច្រើន តែចែកឱ្យគេបានតែ ២ នេះទេ
-            return [
-                'role-delete',
-                'system-setting'
-            ];
         }
 
-        return []; // Role ផ្សេងទៀតចែកអីមិនបានទេ
+        // យក Role ដំបូងរបស់ User
+        $userRole = $user->roles->first(); 
+
+        if ($userRole) {
+            // បច្ចេកទេសការពារ៖ Re-query ដោយប្រើ Model របស់យើង 
+            // ដើម្បីធានាថាវាស្គាល់ Relationship 'assignablePermissions'
+            $roleWithRelation = Role::find($userRole->id);
+            
+            if ($roleWithRelation) {
+                return $roleWithRelation->assignablePermissions->pluck('name')->toArray();
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * API: ទាញយក Data ទៅបង្ហាញក្នុង Modal
+     */
+    public function fetchRolePermissions($roleId)
+    {
+        try {
+            $role = Role::findById($roleId);
+            $currentUser = auth::user();
+
+            // ១. យកបញ្ជីសិទ្ធិដែល User បច្ចុប្បន្ន (Admin) អាចមើលឃើញ/អាចចែកចាយបាន
+            // (លទ្ធផលនឹងចេញតែ user-create, user-delete... អត់មាន user-edit ទេ)
+            $allowedPermissionNames = $this->getAssignablePermissions($currentUser);
+            
+            // Query យក object ពេញលេញដើម្បីបង្ហាញឈ្មោះក្នុង Checkbox
+            $availablePermissions = Permission::whereIn('name', $allowedPermissionNames)->get();
+
+            // ២. ពិនិត្យមើលថា Role នោះមានសិទ្ធិអ្វីខ្លះហើយ (ដើម្បី Tick លើ Checkbox)
+            // យកតែសិទ្ធិណាដែលស្ថិតក្នុង List ដែល Admin មើលឃើញប៉ុណ្ណោះ
+            $checkedPermissions = $role->permissions
+                                       ->whereIn('name', $allowedPermissionNames)
+                                       ->pluck('name');
+
+            return response()->json([
+                'available_permissions' => $availablePermissions, // សម្រាប់ Loop បង្កើត Checkbox
+                'checked_permissions' => $checkedPermissions      // សម្រាប់ Tick ប្រអប់
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * API: Save Permissions (Logic ការពារសិទ្ធិដែលមើលមិនឃើញ)
+     */
+    public function update(Request $request)
+    {
+        $request->validate([
+            'role_id' => 'required|exists:roles,id',
+            'permissions' => 'present|array' // array ឈ្មោះ permission ដែលបាន tick
+        ]);
+
+        try {
+            $role = Role::findById($request->role_id);
+            $currentUser = Auth::user();
+
+            // ១. យកបញ្ជីសិទ្ធិដែល User នេះមានសិទ្ធិគ្រប់គ្រង (Scope)
+            $manageablePermissions = $this->getAssignablePermissions($currentUser);
+
+            // ២. Validate: ការពារកុំអោយគេ Hack បញ្ជូន permission ដែលគេគ្មានសិទ្ធិគ្រប់គ្រងមក
+            // បើ $request->permissions មានសិទ្ធិណាដែលមិនស្ថិតក្នុង $manageablePermissions -> Error
+            $submittedPermissions = $request->permissions;
+            $illegalPermissions = array_diff($submittedPermissions, $manageablePermissions);
+
+            if (!empty($illegalPermissions)) {
+                return response()->json(['message' => 'Security Warning: You tried to assign unauthorized permissions.'], 403);
+            }
+
+            // ៣. Logic រក្សាសិទ្ធិចាស់ (Preserve Invisible Permissions)
+            // ឧទាហរណ៍: Role មាន 'user-edit' តែ Admin មើលអត់ឃើញ។ បើយើង Sync ភ្លាម 'user-edit' នឹងបាត់។
+            
+            // ក. យកសិទ្ធិទាំងអស់ដែល Role មានបច្ចុប្បន្ន
+            $currentRolePermissions = $role->permissions->pluck('name')->toArray();
+
+            // ខ. ទុកសិទ្ធិណាដែល Admin មើលមិនឃើញ (កុំអោយប៉ះពាល់)
+            $keepPermissions = array_diff($currentRolePermissions, $manageablePermissions);
+
+            // គ. បូកបញ្ចូលគ្នា: (សិទ្ធិដែលត្រូវរក្សាទុក) + (សិទ្ធិថ្មីដែល Admin បាន Tick)
+            $finalPermissions = array_merge($keepPermissions, $submittedPermissions);
+
+            // ឃ. Save ចូល Database
+            $role->syncPermissions($finalPermissions);
+
+            return response()->json(['message' => 'Permissions updated successfully!']);
+
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json(['message' => 'Server Error'], 500);
+        }
     }
 
     

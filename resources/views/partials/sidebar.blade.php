@@ -23,15 +23,15 @@
             </a>
             <div class="tooltip hidden absolute left-[100%] top-2 ml-4 bg-gray-900 text-white text-xs px-3 py-2 rounded shadow-xl z-50 whitespace-nowrap">Dashboard</div>
         </div>
-
-        {{-- ពិនិត្យមើលសិនថា តើ User មានសិទ្ធិមើល Menu ណាមួយក្នុង Group នេះឬអត់? --}}
+ 
+        {{-- ពិនិត្យមើលសិនថា តើ User មានសិទ្ធិមើល Menu ណាមួយក្នុង Group នេះឬអត់? --}} 
         @if(auth()->user()->can('user-list') || auth()->user()->can('role-list') || auth()->user()->can('permission-list') || auth()->user()->hasRole('Super Admin'))
             
             <div class="px-4 mt-6 mb-2 sidebar-text">
                 <span class="text-[11px] font-bold opacity-50 uppercase tracking-wider">User Management</span>
             </div>
 
-            @php $isUserActive = request()->routeIs('user.*') || request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') ; @endphp
+            @php $isUserActive = request()->routeIs('user.*') || request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.rules.*') ; @endphp
             
             <div class="group relative">
                 <button onclick="toggleSubmenu(this)" 
@@ -87,6 +87,20 @@
                         </li>
                         @endcan
 
+
+                         {{-- 4. Permission Assing --}}
+                        @role('Super Admin')
+                        <li>
+                            <a href="{{ route('admin.rules.index') }}" 
+                               class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
+                                      {{ request()->routeIs('admin.rules.*') ? 'text-primary font-bold' : 'opacity-80' }}">
+                                <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
+                                             {{ request()->routeIs('admin.rules.*') ? 'bg-primary' : 'bg-gray-400' }}"></span>
+                                <span>Rule List</span>
+                            </a>
+                        </li>
+                        @endrole
+
                     </ul>
                 </div>
                 <div class="tooltip hidden absolute left-[100%] top-2 ml-4 bg-gray-900 text-white text-xs px-3 py-2 rounded shadow-xl z-50 whitespace-nowrap">Users</div>
@@ -97,6 +111,9 @@
             <span class="text-[11px] font-bold opacity-50 uppercase tracking-wider">Settings</span>
         </div>
 
+        
+        
+        @can('theme-color')
         <div class="group relative">
             <a href="{{ route('admin.theme') }}" 
                class="sidebar-item flex items-center px-4 py-3 rounded-xl transition-all duration-200 menu-item-content
@@ -106,23 +123,24 @@
             </a>
             <div class="tooltip hidden absolute left-[100%] top-2 ml-4 bg-gray-900 text-white text-xs px-3 py-2 rounded shadow-xl z-50 whitespace-nowrap">Theme</div>
         </div>
+        @endcan
 
     </nav>
 
-    <div class="p-4 border-t border-custom-border bg-black/5 dark:bg-black/20">
-        <div class="sidebar-item flex items-center gap-3 p-2 rounded-xl transition-colors cursor-pointer menu-item-content">
-            @if(Auth::user()->avatar)
-                <img src="{{ asset('storage/' . Auth::user()->avatar) }}" class="h-9 w-9 rounded-full object-cover border-2 border-custom-border flex-shrink-0">
-            @else
-                <div class="h-9 w-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs border-2 border-custom-border flex-shrink-0">
-                    {{ substr(Auth::user()->name, 0, 1) }}
-                </div>
-            @endif
+    <div class="p-1 border-t border-custom-border bg-black/5 dark:bg-black/20">
+        <a href="https://t.me/Vannchinh11" target="_blank" class="sidebar-item flex items-center gap-3 p-2 rounded-xl transition-colors cursor-pointer menu-item-content hover:bg-black/5 dark:hover:bg-white/5">
+            
+            <img src="{{ asset('storage/creater/kuytangkoan.jpg') }}" 
+                class="h-10 w-10 rounded-full object-cover border-2 border-primary flex-shrink-0 shadow-sm"
+                alt="Creator Profile">
             
             <div class="sidebar-text overflow-hidden">
-                <p class="text-sm font-semibold truncate">{{ Auth::user()->name }}</p>
-                <p class="text-xs opacity-60 truncate">{{ Auth::user()->roles->pluck('name')->first() ?? 'User' }}</p>
+                <p class="text-sm font-semibold truncate text-text-color">Created By</p>
+                <p class="text-xs text-primary truncate font-medium flex items-center gap-1">
+                    Kuy Tangkoan
+                </p>
             </div>
-        </div>
+        </a>
     </div>
+
 </aside>
