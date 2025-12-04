@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\AssignPermissionController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleAssignmentRuleController;
+use App\Http\Controllers\Admin\ActivityLogController;
+
 
 
 /*
@@ -192,6 +194,31 @@ Route::middleware('auth')->group(function () {
             Route::resource('rules', RoleAssignmentRuleController::class)
                 ->only(['index', 'edit', 'update']);
         });
+
+
+
+        // ប្រើ Permission: activity-list ដើម្បីចូលមើល
+        Route::middleware(['auth', 'can:activity-list'])->group(function () {
+            // 1. ទំព័រដើម (View)
+            Route::get('/activity-logs', [ActivityLogController::class, 'index'])
+                ->name('activity_logs.index');
+
+            // 2. API សម្រាប់ទាញទិន្នន័យ (Ajax)
+            Route::get('/activity-logs/fetch', [ActivityLogController::class, 'fetchLogs'])
+                ->name('activity_logs.fetch');
+
+            // 3. API លុប (ត្រូវការ Permission: activity-delete)
+            Route::middleware(['can:activity-delete'])->group(function() {
+                Route::delete('/activity-logs/{id}', [ActivityLogController::class, 'destroy'])
+                    ->name('activity_logs.destroy');
+                    
+                Route::post('/activity-logs/bulk-delete', [ActivityLogController::class, 'bulkDelete'])
+                    ->name('activity_logs.bulk_delete');
+            });
+        });
+
+        
+        
 
     });
 });

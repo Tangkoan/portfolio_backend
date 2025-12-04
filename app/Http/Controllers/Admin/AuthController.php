@@ -58,6 +58,17 @@ class AuthController extends Controller
         Auth::login($user);
         session()->forget('captcha_code');
 
+        // ============================================================
+        // [បន្ថែមថ្មី]៖ កត់ត្រាសកម្មភាពចូលប្រព័ន្ធ (User Action Log)
+        // ============================================================
+        activity()
+            ->causedBy($user) // កត់ថា "អ្នកណា" ជាអ្នក Login
+            ->withProperties([
+                'ip' => $request->ip(),            // ចាប់យក IP Address
+                'browser' => $request->userAgent() // ចាប់យក Browser (Chrome, Firefox...)
+            ])
+            ->log('logged in'); // សារដែលចង់បង្ហាញ: "User A logged in"
+
         // ត្រឡប់ Link Dashboard ទៅអោយ Javascript ដើម្បី Redirect
         return response()->json([
             'status' => 'success',
