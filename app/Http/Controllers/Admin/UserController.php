@@ -113,6 +113,13 @@ class UserController extends Controller
 
         $user->assignRole($request->role);
 
+        // [បន្ថែម Manual Log]
+        activity()
+        ->causedBy(auth()->user())
+        ->performedOn($user)
+        ->withProperties(['role' => $request->role])
+        ->log('create user role');
+
         return response()->json(['message' => 'User created successfully!']);
     }
 
@@ -154,6 +161,12 @@ class UserController extends Controller
 
         // Update Role
         $user->syncRoles([$request->role]);
+        // [បន្ថែម Manual Log]
+        activity()
+        ->causedBy(auth()->user())
+        ->performedOn($user)
+        ->withProperties(['role' => $request->role])
+        ->log('updated user role');
 
         return response()->json(['message' => 'User updated successfully!']);
     }

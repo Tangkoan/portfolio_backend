@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Permission;
+// use Spatie\Permission\Models\Permission;
+use App\Models\Permission; // <--- ដាក់អាថ្មីរបស់អ្នកចូល
 use Illuminate\Validation\Rule;
 
 use Spatie\Permission\Models\Role;

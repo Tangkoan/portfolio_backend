@@ -31,7 +31,7 @@
                 <span class="text-[11px] font-bold opacity-50 uppercase tracking-wider">User Management</span>
             </div>
 
-            @php $isUserActive = request()->routeIs('user.*') || request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.rules.*') ; @endphp
+            @php $isUserActive = request()->routeIs('user.*') || request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.rules.*') || request()->routeIs('admin.activity_logs.*') ; @endphp 
             
             <div class="group relative">
                 <button onclick="toggleSubmenu(this)" 
@@ -97,6 +97,20 @@
                                     <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
                                                 {{ request()->routeIs('admin.rules.*') ? 'bg-primary' : 'bg-gray-400' }}"></span>
                                     <span>Rule List</span>
+                                </a>
+                            </li>
+                        @endcan
+
+
+                        {{-- 4. Permission Assing --}}
+                        @can('activity-list')
+                            <li>
+                                <a href="{{ route('admin.activity_logs.index') }}" 
+                                class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
+                                        {{ request()->routeIs('admin.activity_logs.*') ? 'text-primary font-bold' : 'opacity-80' }}">
+                                    <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
+                                                {{ request()->routeIs('admin.activity_logs.*') ? 'bg-primary' : 'bg-gray-400' }}"></span>
+                                    <span>User Action</span>
                                 </a>
                             </li>
                         @endcan

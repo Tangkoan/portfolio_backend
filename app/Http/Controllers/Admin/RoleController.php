@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Validation\Rule;
 
@@ -159,6 +159,12 @@ class RoleController extends Controller
         
         // syncPermissions នឹងលុបចាស់ចោល ហើយដាក់ថ្មីចូល (ល្អបំផុតសម្រាប់ Checkbox)
         $role->syncPermissions($request->permissions);
+        // [បន្ថែម Manual Log]
+        activity()
+        ->causedBy(auth()->user())
+        ->performedOn($role) // ដាក់ Role ជា Subject
+        ->withProperties(['permissions' => $request->permissions]) // ទុកដានថាដាក់សិទ្ធិអ្វីខ្លះ
+        ->log('assigned permissions to role');
 
         return response()->json(['message' => 'Permissions assigned successfully!']);
     }

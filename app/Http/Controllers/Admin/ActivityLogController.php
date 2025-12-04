@@ -17,7 +17,24 @@ class ActivityLogController extends Controller
     // API: ទាញយកទិន្នន័យ JSON
     public function fetchLogs(Request $request)
     {
+
+        // ១. យក Level របស់ User បច្ចុប្បន្ន
+        $currentUser = auth()->user();
+        $myLevel = $currentUser->roles->max('level') ?? 0;
+        
         $query = Activity::with('causer')->latest();
+
+        // ២. [បន្ថែមថ្មី] Logic ការពារការមើលឃើញ Log របស់អ្នកធំ
+        if (!$currentUser->hasRole('Super Admin')) { // ឬ ($myLevel < 99)
+            $query->where(function($q) use ($myLevel) {
+                // ក. ឃើញ Log របស់ System (គ្មាន causer)
+                $q->whereNull('causer_id')
+                // ខ. ឬឃើញ Log របស់ User ណាដែលមាន Level តូចជាងឬស្មើខ្លួនឯង
+                ->orWhereHas('causer.roles', function($roleQuery) use ($myLevel) {
+                    $roleQuery->where('level', '<=', $myLevel);
+                });
+            });
+        }
 
         if ($request->keyword) {
             $keyword = $request->keyword;

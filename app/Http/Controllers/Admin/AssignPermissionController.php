@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 // use Spatie\Permission\Models\Role;
 use App\Models\Role; // <--- ដាក់អាថ្មីរបស់អ្នកចូល
-use Spatie\Permission\Models\Permission;
+// use Spatie\Permission\Models\Permission;
+use App\Models\Permission; // <--- ដាក់អាថ្មីរបស់អ្នកចូល
 use Illuminate\Support\Facades\Auth; // <--- ត្រូវប្រាកដថាមាន (សំខាន់ណាស់)
 
 use Illuminate\Support\Facades\Log;      // ៣. សម្រាប់មើល Log បើមាន Error
@@ -93,6 +94,7 @@ class AssignPermissionController extends Controller
 
             // ១. យកបញ្ជីសិទ្ធិដែល User នេះមានសិទ្ធិគ្រប់គ្រង (Scope)
             $manageablePermissions = $this->getAssignablePermissions($currentUser);
+            
 
             // ២. Validate: ការពារកុំអោយគេ Hack បញ្ជូន permission ដែលគេគ្មានសិទ្ធិគ្រប់គ្រងមក
             // បើ $request->permissions មានសិទ្ធិណាដែលមិនស្ថិតក្នុង $manageablePermissions -> Error
