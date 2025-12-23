@@ -15,7 +15,7 @@
     <nav class="flex-1 overflow-y-auto no-scrollbar py-6 px-4 space-y-2">
 
         <div class="group relative">
-            <a href="{{ route('admin.dashboard') }}" 
+            <a href="{{ route('admin.dashboard') }}" wire:navigate
                class="sidebar-item flex items-center px-4 py-3 rounded-xl transition-all duration-200 menu-item-content
                       {{ request()->routeIs('admin.dashboard') ? 'btn-primary shadow-lg' : '' }}">
                 <i class="ri-dashboard-line text-xl menu-icon mr-3"></i>
@@ -51,7 +51,7 @@
                         {{-- 1. User List --}}
                         @can('user-list')
                             <li>
-                                <a href="{{ route('user.list') }}" 
+                                <a href="{{ route('user.list') }}" wire:navigate
                                 class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
                                         {{ request()->routeIs('user.list') ? 'text-primary font-bold' : 'opacity-80' }}">
                                     <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
@@ -64,7 +64,7 @@
                         {{-- 2. Role & Permission --}}
                         @can('role-list')
                             <li>
-                                <a href="{{ route('admin.roles.index') }}" 
+                                <a href="{{ route('admin.roles.index') }}" wire:navigate
                                 class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
                                         {{ request()->routeIs('admin.roles.*') ? 'text-primary font-bold' : 'opacity-80' }}">
                                     <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
@@ -77,7 +77,7 @@
                         {{-- 3. Permission List --}}
                         @can('permission-list')
                             <li>
-                                <a href="{{ route('admin.permissions.index') }}" 
+                                <a href="{{ route('admin.permissions.index') }}" wire:navigate
                                 class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
                                         {{ request()->routeIs('admin.permissions.*') ? 'text-primary font-bold' : 'opacity-80' }}">
                                     <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
@@ -91,7 +91,7 @@
                         {{-- 4. Permission Assing --}}
                         @can('rule-list')
                             <li>
-                                <a href="{{ route('admin.rules.index') }}" 
+                                <a href="{{ route('admin.rules.index') }}" wire:navigate
                                 class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
                                         {{ request()->routeIs('admin.rules.*') ? 'text-primary font-bold' : 'opacity-80' }}">
                                     <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
@@ -105,7 +105,7 @@
                         {{-- 4. Permission Assing --}}
                         @can('activity-list')
                             <li>
-                                <a href="{{ route('admin.activity_logs.index') }}" 
+                                <a href="{{ route('admin.activity_logs.index') }}" wire:navigate
                                 class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
                                         {{ request()->routeIs('admin.activity_logs.*') ? 'text-primary font-bold' : 'opacity-80' }}">
                                     <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
@@ -129,7 +129,7 @@
         
         @can('theme-color')
         <div class="group relative">
-            <a href="{{ route('admin.theme') }}" 
+            <a href="{{ route('admin.theme') }}" wire:navigate
                class="sidebar-item flex items-center px-4 py-3 rounded-xl transition-all duration-200 menu-item-content
                       {{ request()->routeIs('admin.theme') ? 'btn-primary shadow-lg' : '' }}">
                 <i class="ri-palette-line text-xl menu-icon mr-3"></i>

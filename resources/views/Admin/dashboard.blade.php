@@ -9,14 +9,22 @@
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('components.toast')
+    @livewireStyles
     
     
     <link href="{{ asset('assets/remixicon/remixicon.css') }}" rel="stylesheet">
-
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+{{-- 
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script> --}}
     
 
     <style>
+        @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
         /* 1. បន្ថែម Class នេះដើម្បីបិទ Animation ពេលកំពុង Load */
         .preload * {
             -webkit-transition: none !important;
@@ -212,7 +220,11 @@
 
     <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
         @include('partials.header')
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-page-bg p-6 transition-colors duration-300">
+        {{-- <main class="flex-1 overflow-x-hidden overflow-y-auto bg-page-bg p-6 transition-colors duration-300">
+            @yield('content')
+        </main> --}}
+
+        <main>
             @yield('content')
         </main>
         {{-- Modal របស់ Delete --}}
@@ -231,40 +243,76 @@
     </div> --}}
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // ... (រក្សាកូដ Sidebar របស់អ្នកនៅដដែល) ...
+        // ១. បង្កើត Function រួមមួយដើម្បីគ្រប់គ្រង Sidebar
+        function initSidebar() {
             const body = document.body;
             const sidebar = document.getElementById('sidebar');
             const toggleBtn = document.getElementById('sidebarToggle');
+            
+            // --- ផ្នែកកំណត់ State (Collapsed ឬអត់) ---
             const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+            
             if (isCollapsed) {
                 body.classList.add('collapsed');
-                if(sidebar) { sidebar.classList.remove('w-72'); sidebar.classList.add('w-20'); }
+                if(sidebar) { 
+                    sidebar.classList.remove('w-72'); 
+                    sidebar.classList.add('w-20'); 
+                }
+                // បង្វិលព្រួញមកសភាពដើមវិញពេលបិទ
                 document.querySelectorAll('.arrow-icon').forEach(el => el.classList.remove('rotate-180'));
+            } else {
+                body.classList.remove('collapsed');
+                if(sidebar) { 
+                    sidebar.classList.remove('w-20'); 
+                    sidebar.classList.add('w-72'); 
+                }
             }
+
+            // --- ផ្នែកចុចប៊ូតុង (Toggle Action) ---
             if(toggleBtn){
-                toggleBtn.addEventListener('click', () => {
+                // សំគាល់៖ ប្រើ .onclick ជំនួស addEventListener ដើម្បីកុំឱ្យ Event ជាន់គ្នាពេល Livewire Re-render
+                toggleBtn.onclick = function() {
                     body.classList.toggle('collapsed');
                     const isNowCollapsed = body.classList.contains('collapsed');
                     localStorage.setItem('sidebar-collapsed', isNowCollapsed);
+                    
                     if(sidebar) {
                         if (isNowCollapsed) {
-                            sidebar.classList.remove('w-72'); sidebar.classList.add('w-20');
+                            sidebar.classList.remove('w-72'); 
+                            sidebar.classList.add('w-20');
+                            // បិទ Submenu ទាំងអស់ពេលបង្រួម
+                            document.querySelectorAll('.submenu').forEach(el => el.classList.add('hidden'));
                             document.querySelectorAll('.arrow-icon').forEach(el => el.classList.remove('rotate-180'));
                         } else {
-                            sidebar.classList.remove('w-20'); sidebar.classList.add('w-72');
+                            sidebar.classList.remove('w-20'); 
+                            sidebar.classList.add('w-72');
                         }
                     }
-                });
+                };
             }
-        });
-        function toggleSubmenu(button) {
+        }
+
+        // ២. ហៅ Function នេះឱ្យដំណើរការ ២ ករណី៖
+        
+        // ករណីទី ១: ពេលចូល Web ដំបូង (Hard Refresh)
+        document.addEventListener('DOMContentLoaded', initSidebar);
+        
+        // ករណីទី ២: ពេល Livewire ប្តូរទំព័រ (SPA Navigation)
+        document.addEventListener('livewire:navigated', initSidebar);
+
+
+        // ៣. Function សម្រាប់ Submenu (ដាក់ចូល window ដើម្បីឱ្យ HTML ហៅប្រើបានគ្រប់ពេល)
+        window.toggleSubmenu = function(button) {
+            // បើ Sidebar កំពុងបិទ មិនឱ្យចុចបើក Submenu ទេ (ឱ្យវាចេញជា Popup ជំនួសវិញតាម CSS)
             if (document.body.classList.contains('collapsed')) return;
+            
             const submenu = button.nextElementSibling;
             const arrow = button.querySelector('.arrow-icon');
+            
             if(submenu) submenu.classList.toggle('hidden');
             if(arrow) arrow.classList.toggle('rotate-180');
         }
     </script>
+    @livewireScripts
 </body>
 </html>
