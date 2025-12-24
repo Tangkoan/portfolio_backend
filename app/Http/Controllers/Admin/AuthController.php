@@ -79,16 +79,27 @@ class AuthController extends Controller
     // ៣. Logic សម្រាប់ Logout
     public function logout(Request $request)
     {
-        // Logout user ចេញពីប្រព័ន្ធ
+        // ១. កត់ត្រាសកម្មភាព (ដូចអ្នកបានធ្វើនៅ Login)
+        if (Auth::check()) {
+            activity()
+                ->causedBy(Auth::user())
+                ->withProperties([
+                    'ip' => $request->ip(),
+                    'browser' => $request->userAgent()
+                ])
+                ->log('logged out');
+        }
+
+        // ២. Logout Logic ធម្មតា
         Auth::logout();
-
-        // លុប Session ចាស់ចោល (Invalided)
         $request->session()->invalidate();
-
-        // បង្កើត Token ថ្មី (ដើម្បីការពារសុវត្ថិភាព CSRF)
         $request->session()->regenerateToken();
 
-        // រុញទៅកាន់ផ្ទាំង Login វិញ
-        return redirect()->route('login');
+        // ៣. [ចំណុចសំខាន់ដែលត្រូវកែ]
+        // ជំនួសឱ្យ return redirect(...) យើង return JSON វិញ
+        return response()->json([
+            'status' => 'success',
+            'redirect_url' => route('login') // ផ្ញើ Link Login ទៅឱ្យ Frontend
+        ]);
     }
 }

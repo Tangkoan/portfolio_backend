@@ -13,8 +13,7 @@
     
     
     <link href="{{ asset('assets/remixicon/remixicon.css') }}" rel="stylesheet">
-{{-- 
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script> --}}
+
     
 
     <style>
@@ -124,9 +123,9 @@
 
     <style x-data x-text="$store.theme.css"></style>
 
-    <script>
-        // Config ដើមរបស់អ្នក (រក្សាទុកដដែល)
-        const defaultThemeConfig = {
+    <script data-navigate-once>
+        // ១. ដូរពី const ទៅជា window.variable ដើម្បីកុំឱ្យវា Error ថាមានឈ្មោះជាន់គ្នា
+        window.defaultThemeConfig = {
             light: {
                 primary: '#3b82f6', primaryText: '#ffffff', secondary: '#64748b',
                 sidebarBg: '#ffffff', sidebarText: '#1e293b', sidebarHoverBg: '#f1f5f9', sidebarHoverText: '#0f172a',
@@ -145,10 +144,14 @@
         };
 
         document.addEventListener('alpine:init', () => {
+            // ២. ឆែកមើលសិន មុននឹងបង្កើត Store ដើម្បីកុំឱ្យវាបង្កើតជាន់គ្នា
+            if (Alpine.store('theme')) return;
+
             Alpine.store('theme', {
                 darkMode: localStorage.getItem('theme_mode') === 'dark',
                 isSaving: false,
-                settings: JSON.parse(JSON.stringify(defaultThemeConfig)),
+                // ហៅយកពី window វិញ
+                settings: JSON.parse(JSON.stringify(window.defaultThemeConfig)),
 
                 init() {
                     const dbSettings = @json(auth()->user()->theme_settings ?? null);
@@ -157,7 +160,6 @@
                         if(dbSettings.dark) this.settings.dark = { ...this.settings.dark, ...dbSettings.dark };
                         if(dbSettings.shadow !== undefined) this.settings.shadow = dbSettings.shadow;
                     }
-                    // លុប Class preload ចេញវិញពេល Alpine រួចរាល់
                     document.body.classList.remove('preload');
                     this.applyThemeClass();
                 },
@@ -179,7 +181,8 @@
                 },
                 reset() {
                     if(confirm('Reset all colors to default?')) {
-                        this.settings = JSON.parse(JSON.stringify(defaultThemeConfig));
+                        // ហៅយកពី window វិញ
+                        this.settings = JSON.parse(JSON.stringify(window.defaultThemeConfig));
                     }
                 },
                 hexToRgb(hex) {
@@ -201,7 +204,6 @@
                     finally { setTimeout(() => { this.isSaving = false; }, 500); }
                 },
                 get css() {
-                    // កូដបង្កើត CSS របស់អ្នក (ដូចដើម)
                     const l = this.settings.light; const d = this.settings.dark;
                     const shadowVal = this.settings.shadow ? '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' : 'none';
                     return `:root { --color-primary: ${this.hexToRgb(l.primary)}; --color-primary-text: ${this.hexToRgb(l.primaryText)}; --color-secondary: ${this.hexToRgb(l.secondary)}; --sidebar-bg: ${this.hexToRgb(l.sidebarBg)}; --sidebar-text: ${this.hexToRgb(l.sidebarText)}; --sidebar-hover-bg: ${this.hexToRgb(l.sidebarHoverBg)}; --sidebar-hover-text: ${this.hexToRgb(l.sidebarHoverText)}; --sidebar-hover-opacity: ${l.sidebarHoverBgOpacity / 100}; --header-bg: ${this.hexToRgb(l.headerBg)}; --page-bg: ${this.hexToRgb(l.pageBg)}; --card-bg: ${this.hexToRgb(l.cardBg)}; --input-bg: ${this.hexToRgb(l.inputBg)}; --custom-border: ${this.hexToRgb(l.border)}; --custom-shadow: ${shadowVal}; } .dark { --color-primary: ${this.hexToRgb(d.primary)}; --color-primary-text: ${this.hexToRgb(d.primaryText)}; --color-secondary: ${this.hexToRgb(d.secondary)}; --sidebar-bg: ${this.hexToRgb(d.sidebarBg)}; --sidebar-text: ${this.hexToRgb(d.sidebarText)}; --sidebar-hover-bg: ${this.hexToRgb(d.sidebarHoverBg)}; --sidebar-hover-text: ${this.hexToRgb(d.sidebarHoverText)}; --sidebar-hover-opacity: ${d.sidebarHoverBgOpacity / 100}; --header-bg: ${this.hexToRgb(d.headerBg)}; --page-bg: ${this.hexToRgb(d.pageBg)}; --card-bg: ${this.hexToRgb(d.cardBg)}; --input-bg: ${this.hexToRgb(d.inputBg)}; --custom-border: ${this.hexToRgb(d.border)}; } .btn-primary { background-color: rgb(var(--color-primary)); color: rgb(var(--color-primary-text)); } .sidebar-item:hover { background-color: rgb(var(--sidebar-hover-bg) / var(--sidebar-hover-opacity)); color: rgb(var(--sidebar-hover-text)); }`;
@@ -220,13 +222,10 @@
 
     <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
         @include('partials.header')
-        {{-- <main class="flex-1 overflow-x-hidden overflow-y-auto bg-page-bg p-6 transition-colors duration-300">
-            @yield('content')
-        </main> --}}
-
-        <main>
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-page-bg p-6 transition-colors duration-300">
             @yield('content')
         </main>
+
         {{-- Modal របស់ Delete --}}
         @include('partials.confirm_modal')
         

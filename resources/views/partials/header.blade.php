@@ -53,20 +53,57 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ Auth::user()->email }}</p>
                 </div>
 
-                <a href="{{ route('admin.profile') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <a href="{{ route('admin.profile') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                     <i class="ri-user-line mr-2"></i> User Info
                 </a>
 
-                <a href="{{ route('admin.password') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <a href="{{ route('admin.password') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                     <i class="ri-lock-password-line mr-2"></i> Change Password
                 </a>
 
-                <form method="POST" action="{{ route('logout') }}">
+                {{-- <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
                         <i class="ri-logout-box-line mr-2"></i> Logout
                     </button>
-                </form>
+                </form> --}}
+                <button 
+                    {{-- ហៅ Function ខាងក្រោមពេលចុច --}}
+                    @click.prevent="logoutUser()" 
+                    type="button" 
+                    class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
+                    
+                    <i class="ri-logout-box-line mr-2"></i> Logout
+                </button>
+                {{-- Script សម្រាប់គ្រប់គ្រងការ Logout --}}
+                <script>
+                    function logoutUser() {
+                        // ១. ហៅទៅកាន់ AuthController តាមរយៈ Fetch API
+                        fetch("{{ route('logout') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            // ២. ពេល Logout ជោគជ័យ និងទទួលបាន redirect_url
+                            if (data.redirect_url) {
+                                // ប្រើ Livewire.navigate ដើម្បីប្តូរ Page ដោយមិន Refresh
+                                Livewire.navigate(data.redirect_url);
+                            } else {
+                                // ករណីបន្ទាន់ (Fallback)
+                                window.location.href = '/login';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            // បើមានបញ្ហា អោយវា Refresh ធម្មតាទៅ
+                            window.location.reload(); 
+                        });
+                    }
+                </script>
             </div>
         </div>
 
