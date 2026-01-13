@@ -143,7 +143,8 @@
             </table>
         </div>
         
-        <x-pagination x-model="perPage" @change="fetchUsers()" />
+        {{-- ហៅប្រើ Component នៅទីនេះ --}}
+        <x-pagination />
     </div>
 
     <div x-show="isModalOpen" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center px-4" x-cloak>
