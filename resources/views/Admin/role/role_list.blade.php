@@ -6,7 +6,9 @@
     <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-text-color flex items-center gap-2">
-                <i class="ri-shield-user-line text-primary"></i> Role Management
+                {{-- <i class="ri-shield-user-line text-primary"></i> --}}
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-user-icon lucide-shield-user"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M6.376 18.91a6 6 0 0 1 11.249.003"/><circle cx="12" cy="11" r="4"/></svg>
+                Role Management
             </h1>
         </div>
 
@@ -65,7 +67,8 @@
                 @can('role-create') bg-primary hover:opacity-90 @else bg-gray-400 cursor-not-allowed opacity-70 @endcan"
                 @cannot('role-create') disabled @endcannot
             >
-                <i class="ri-add-circle-line"></i> 
+                {{-- <i class="ri-add-circle-line"></i>  --}}
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-plus-icon lucide-circle-plus"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
                 <span>Add Role</span>
             </button>
         </div>
@@ -160,7 +163,8 @@
             </table>
         </div>
         
-        <x-pagination x-model="perPage" @change="fetchRoles()" />
+        {{-- ហៅប្រើ Component នៅទីនេះ --}}
+<x-pagination />
     </div>
 
     <div x-show="isModalOpen" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center px-4" x-cloak>
@@ -272,19 +276,33 @@
 <script>
     function roleManagement() {
         return {
-            roles: [], search: '', isLoading: false, pagination: {}, errors: {},
-            perPage: '10', selectedIds: [], selectAll: false,
+            // Data
+            roles: [], 
+            search: '', 
+            isLoading: false, 
+            errors: {}, 
             
-            // Sequential Edit
-            isSequenceMode: false, sequenceQueue: [], currentSeqIndex: 0,
+            // Pagination Variables (ត្រូវតែមាន)
+            perPage: '10', 
+            currentPage: 1, // [កែសម្រួល] កំណត់តម្លៃដើម
+            pagination: { last_page: 1, total: 0 }, 
+            
+            // Selection & Bulk Edit
+            selectedIds: [], 
+            selectAll: false,
+            isSequenceMode: false, 
+            sequenceQueue: [], 
+            currentSeqIndex: 0,
             showCols: JSON.parse(localStorage.getItem('role_table_cols')) || { permissions: true, users_count: true },
 
-            // Modal State
-            isModalOpen: false, editMode: false, form: { id: null, name: '' },
+            // Modals
+            isModalOpen: false, 
+            editMode: false, 
+            form: { id: null, name: '', level: 10 },
             
-            // Permission Modal State (Updated)
+            // Permissions Modal
             isPermissionModalOpen: false, 
-            allAvailablePermissions: [], // New: Store list from API
+            allAvailablePermissions: [], 
             permissionForm: { roleId: null, roleName: '', permissions: [] },
 
             init() {
@@ -292,24 +310,60 @@
                 this.fetchRoles();
             },
 
-            async fetchRoles(url = "{{ route('admin.roles.fetch') }}") {
+            // [កែសម្រួល] Function នេះត្រូវបានកែដើម្បីបញ្ជូន page ទៅ Server
+            async fetchRoles() {
+                let url = "{{ route('admin.roles.fetch') }}";
                 const params = new URLSearchParams();
+                
                 if(this.search) params.append('keyword', this.search);
                 params.append('per_page', this.perPage);
+                
+                // [ចំណុចសំខាន់ដែលអ្នកបាត់] បញ្ជូនលេខទំព័រទៅ Server
+                params.append('page', this.currentPage);
+
                 url = url.split('?')[0] + '?' + params.toString();
 
+                this.isLoading = true;
                 try {
                     const res = await fetch(url);
                     const data = await res.json();
+                    
                     this.roles = data.data;
-                    this.pagination = { total: data.total, from: data.from, to: data.to, prev_page_url: data.prev_page_url, next_page_url: data.next_page_url };
+                    
+                    // Update Pagination Data
+                    this.pagination = { 
+                        total: data.total, 
+                        from: data.from, 
+                        to: data.to, 
+                        current_page: data.current_page,
+                        last_page: data.last_page, 
+                        prev_page_url: data.prev_page_url, 
+                        next_page_url: data.next_page_url 
+                    };
+                    
+                    // Sync currentPage ជាមួយ Server
+                    this.currentPage = data.current_page;
+
                     this.selectedIds = [];
                     this.selectAll = false;
-                } catch (e) { console.error(e); }
+                } catch (e) { console.error(e); } 
+                finally { this.isLoading = false; }
             },
             
-            changePage(url) { if(url) this.fetchRoles(url); },
-            toggleSelectAll() { this.selectedIds = this.selectAll ? this.roles.map(role => role.id) : []; },
+            // [ចំណុចសំខាន់ដែលអ្នកបាត់] Function សម្រាប់ Component Pagination ហៅប្រើ
+            gotoPage(page) {
+                // ការពារកុំឱ្យចុចលើស ឬ ក្រោមទំព័រដែលមាន
+                if (page < 1 || (this.pagination.last_page && page > this.pagination.last_page)) return;
+                
+                this.currentPage = page; // ប្ដូរលេខ
+                this.fetchRoles();       // ហៅទិន្នន័យថ្មី
+            },
+
+            toggleSelectAll() { 
+                this.selectedIds = this.selectAll ? this.roles.map(role => role.id) : []; 
+            },
+
+            // ... (កូដខាងក្រោមនេះ រក្សាទុកដដែលបាន) ...
 
             // --- BULK EDIT ---
             startSequentialEdit() {
@@ -330,13 +384,11 @@
                 this.isSequenceMode = false; this.isModalOpen = true; this.errors = {};
                 if (mode === 'edit') this.loadRoleToForm(role);
                 else { this.editMode = false;
-                    // បន្ថែម level: '' ឬ 0
                     this.form = { id: null, name: '', level: 10 };
                 }
             },
             loadRoleToForm(role) { 
                 this.editMode = true; 
-                // បន្ថែម role.level ចូល
                 this.form = { id: role.id, name: role.name, level: role.level }; 
                 this.errors = {}; 
             },
@@ -386,30 +438,23 @@
                 } catch(e) { console.error(e); }
             },
 
-            // --- PERMISSION Logic (Updated) ---
+            // --- PERMISSION Logic ---
             async openPermissionModal(role) {
                 this.permissionForm.roleId = role.id;
                 this.permissionForm.roleName = role.name;
                 this.isPermissionModalOpen = true;
-                
-                // Clear old data
                 this.allAvailablePermissions = [];
                 this.permissionForm.permissions = [];
-
                 try {
                     const res = await fetch(`/admin/assign-permissions/${role.id}`);
                     const data = await res.json();
-                    
-                    // Assign Data from API
                     this.allAvailablePermissions = data.available_permissions;
                     this.permissionForm.permissions = data.checked_permissions; 
                 } catch (e) { console.error(e); }
             },
-
             selectAllPermissions() {
                 this.permissionForm.permissions = this.allAvailablePermissions.map(p => p.name);
             },
-
             async submitPermissions() {
                 this.isLoading = true;
                 try {

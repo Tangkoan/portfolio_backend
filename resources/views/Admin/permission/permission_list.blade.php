@@ -6,7 +6,9 @@
     <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-text-color flex items-center gap-2">
-                <i class="ri-key-2-line text-primary"></i> Permission Management
+                {{-- <i class="ri-key-2-line text-primary"></i> --}}
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-key-round-icon lucide-key-round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+                Permission Management
             </h1>
         </div>
 
@@ -65,7 +67,8 @@
                 class="w-full sm:w-auto text-white font-bold py-2.5 px-6 rounded-xl flex justify-center items-center gap-2 transition-all shadow-lg shadow-primary/30 whitespace-nowrap
                 @unlessrole('Super Admin') bg-gray-400 cursor-not-allowed opacity-70 @else bg-primary hover:opacity-90 @endunlessrole"
                 @unlessrole('Super Admin') disabled title="Restricted" @endunlessrole>
-                <i class="ri-add-line"></i> <span class="hidden sm:inline">Add Permission</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-plus-icon lucide-circle-plus"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+                <span class="hidden sm:inline">Add Permission</span>
             </button>
         </div>
     </div>
@@ -139,7 +142,7 @@
             </table>
         </div>
         
-        <x-pagination x-model="perPage" @change="fetchPermissions()" />
+        <x-pagination/>
 
     </div>
 
@@ -193,22 +196,24 @@
 <script>
     function permissionManagement() {
         return {
+            // Data & Loading
             permissions: [], 
             search: '', 
             isLoading: false, 
-            pagination: {}, 
             errors: {},
             
-            // Bulk & Filter Logic
+            // Pagination Variables (ត្រូវតែមានសម្រាប់ Component)
             perPage: '10',
+            currentPage: 1, // [កែសម្រួល] កំណត់លេខទំព័រចាប់ផ្តើម
+            pagination: { last_page: 1, total: 0 }, 
+
+            // Selection & Filters
             selectedIds: [],
             selectAll: false,
             showCols: JSON.parse(localStorage.getItem('perm_table_cols')) || { guard_name: true, created_at: true },
 
-            // Edit/Create Modal State
+            // Modal States
             isModalOpen: false, editMode: false, form: { id: null, name: '' },
-            
-            // Sequential Edit State
             isSequenceMode: false, sequenceQueue: [], currentSeqIndex: 0,
 
             init() {
@@ -216,14 +221,21 @@
                 this.fetchPermissions();
             },
 
-            async fetchPermissions(url = "{{ route('admin.permissions.fetch') }}") {
+            // [កែសម្រួល] Function ទាញទិន្នន័យ (បន្ថែម page param)
+            async fetchPermissions() {
+                let url = "{{ route('admin.permissions.fetch') }}";
                 const params = new URLSearchParams();
+                
                 if(this.search) params.append('keyword', this.search);
                 params.append('per_page', this.perPage);
+                
+                // [ចំណុចសំខាន់] បញ្ជូនលេខទំព័រទៅ Server
+                params.append('page', this.currentPage); 
+
                 url = url.split('?')[0] + '?' + params.toString();
 
+                this.isLoading = true;
                 try {
-                    // បន្ថែម Header នៅពេល Fetch ផងដែរ
                     const res = await fetch(url, {
                         headers: {
                             'Accept': 'application/json',
@@ -231,23 +243,47 @@
                         }
                     });
                     const data = await res.json();
+                    
                     this.permissions = data.data;
-                    this.pagination = { total: data.total, from: data.from, to: data.to, prev_page_url: data.prev_page_url, next_page_url: data.next_page_url };
+                    
+                    // Update Pagination Data
+                    this.pagination = { 
+                        total: data.total, 
+                        from: data.from, 
+                        to: data.to, 
+                        current_page: data.current_page,
+                        last_page: data.last_page, 
+                        prev_page_url: data.prev_page_url, 
+                        next_page_url: data.next_page_url 
+                    };
+                    
+                    // Sync currentPage
+                    this.currentPage = data.current_page;
                     
                     this.selectedIds = [];
                     this.selectAll = false;
                 } catch (e) { 
                     console.error(e);
-                    // បង្ហាញ Error បើ Fetch មិនបាន
                     window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: 'Failed to load data!' } }));
+                } finally {
+                    this.isLoading = false;
                 }
             },
             
-            changePage(url) { if(url) this.fetchPermissions(url); },
+            // [បន្ថែមថ្មី] Function សម្រាប់ Component Pagination ហៅប្រើ
+            gotoPage(page) {
+                // ការពារកុំឱ្យចុចលើស ឬ ក្រោមទំព័រដែលមាន
+                if (page < 1 || (this.pagination.last_page && page > this.pagination.last_page)) return;
+                
+                this.currentPage = page; // ប្ដូរលេខ
+                this.fetchPermissions(); // ហៅទិន្នន័យថ្មី
+            },
 
             toggleSelectAll() {
                 this.selectedIds = this.selectAll ? this.permissions.map(p => p.id) : [];
             },
+
+            // ... (កូដខាងក្រោមនេះ រក្សាទុកដដែលបាន ព្រោះត្រឹមត្រូវហើយ) ...
 
             // --- BULK EDIT (Sequential) ---
             startSequentialEdit() {
@@ -309,7 +345,7 @@
                         method: method,
                         headers: { 
                             'Content-Type': 'application/json',
-                            'Accept': 'application/json', // <--- សំខាន់ណាស់៖ ប្រាប់ Laravel ឱ្យបោះ JSON ពេល Error
+                            'Accept': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') 
                         },
                         body: JSON.stringify(this.form)
@@ -318,25 +354,19 @@
                     const data = await res.json();
 
                     if (!res.ok) {
-                        // បើជា Validation Error (422)
                         if (res.status === 422) {
                             this.errors = data.errors;
-                            // លោត Message ក្រហមប្រាប់ថាមានកំហុស
                             window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: 'Please check your input.' } }));
-                        } 
-                        // បើជា Error ផ្សេងទៀត (ឧទាហរណ៍ 500 Server Error)
-                        else {
+                        } else {
                             window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: data.message || 'Something went wrong!' } }));
                         }
                     } else {
-                        // ជោគជ័យ
                         window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: data.message } }));
                         if (this.isSequenceMode) this.nextInSequence();
                         else { this.isModalOpen = false; this.fetchPermissions(); }
                     }
                 } catch (e) { 
                     console.error(e);
-                    // ចាប់ Error ពេលគាំង (ឧទាហរណ៍ Network ដាច់ ឬ Syntax Error)
                     window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: 'System Error: ' + e.message } }));
                 } finally { 
                     this.isLoading = false; 
@@ -363,7 +393,7 @@
                         method: method,
                         headers: { 
                             'Content-Type': 'application/json', 
-                            'Accept': 'application/json', // <--- សំខាន់ណាស់
+                            'Accept': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') 
                         },
                         body: body
@@ -377,7 +407,6 @@
                         this.fetchPermissions();
                         window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: data.message } }));
                     } else {
-                        // បង្ហាញ Error ពេលលុបមិនបាន (ឧ. ជាប់ Role)
                         window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: data.message || 'Cannot delete.' } }));
                     }
                 } catch (e) { 

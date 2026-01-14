@@ -7,7 +7,11 @@
     <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-text-color flex items-center gap-2">
-                <i class="ri-team-line text-primary"></i> User Management
+                {{-- <i class="ri-team-line text-primary"></i> --}}
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+                </svg>
+                User Management
             </h1>
         </div>
 
@@ -70,7 +74,8 @@
                 @can('user-create') bg-primary hover:opacity-90 @else bg-gray-400 cursor-not-allowed opacity-70 @endcan"
                 @cannot('user-create') disabled title="No Permission" @endcannot
             >
-                <i class="ri-user-add-line"></i> 
+                {{-- <i class="ri-user-add-line"></i>  --}}
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-plus-icon lucide-user-plus"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
                 <span>Add User</span>
             </button>
         </div>
@@ -138,7 +143,8 @@
             </table>
         </div>
         
-        <x-pagination x-model="perPage" @change="fetchUsers()" />
+        {{-- ហៅប្រើ Component នៅទីនេះ --}}
+        <x-pagination />
     </div>
 
     <div x-show="isModalOpen" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center px-4" x-cloak>
@@ -211,10 +217,13 @@
         return {
             users: [],
             search: '',
+            perPage: '10',
+            currentPage: 1, // តម្លៃដើម
+            pagination: { last_page: 1, total: 0 }, // តម្លៃដើមការពារ Error
             isModalOpen: false,
             editMode: false,
             isLoading: false,
-            pagination: {},
+            
             
             perPage: '10',
 
@@ -241,29 +250,57 @@
                 this.fetchUsers();
             },
 
-            async fetchUsers(url = "{{ route('admin.users.fetch') }}") {
-                const params = new URLSearchParams();
-                if(this.search) params.append('keyword', this.search);
-                params.append('per_page', this.perPage);
-                
-                url = url.split('?')[0] + '?' + params.toString();
+            
 
-                try {
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    this.users = data.data;
-                    this.pagination = {
-                        total: data.total,
-                        from: data.from,
-                        to: data.to,
-                        prev_page_url: data.prev_page_url,
-                        next_page_url: data.next_page_url
-                    };
-                    
-                    this.selectedIds = [];
-                    this.selectAll = false;
-                } catch (error) { console.error(error); }
-            },
+async fetchUsers() {
+            let url = "{{ route('admin.users.fetch') }}";
+            const params = new URLSearchParams();
+            
+            if(this.search) params.append('keyword', this.search);
+            params.append('per_page', this.perPage);
+            
+            // [សំខាន់] បញ្ជូនលេខទំព័រទៅ Server
+            params.append('page', this.currentPage);
+
+            // បង្កើត URL
+            url = url.split('?')[0] + '?' + params.toString();
+
+            this.isLoading = true; // ដាក់ Loading បន្តិចមើលទៅល្អ
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                this.users = data.data;
+                
+                // Update Pagination Data ពី Server
+                this.pagination = {
+                    total: data.total,
+                    from: data.from,
+                    to: data.to,
+                    current_page: data.current_page,
+                    last_page: data.last_page, 
+                    prev_page_url: data.prev_page_url,
+                    next_page_url: data.next_page_url
+                };
+                
+                // ធានាថា currentPage ត្រូវគ្នាជាមួយ Server
+                this.currentPage = data.current_page;
+                
+            } catch (error) { 
+                console.error(error); 
+            } finally {
+                this.isLoading = false;
+            }
+        },
+        // [បន្ថែមថ្មី] Function សម្រាប់ប្ដូរទំព័រ
+        gotoPage(page) {
+            // ការពារកុំឱ្យចុចលើសទំព័រដែលមាន
+            if (page < 1 || (this.pagination.last_page && page > this.pagination.last_page)) return;
+            
+            // ដាក់លេខទំព័រថ្មី រួចហៅ API
+            this.currentPage = page;
+            this.fetchUsers(); 
+        },
 
             changePage(url) { if(url) this.fetchUsers(url); },
 

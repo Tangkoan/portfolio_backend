@@ -7,7 +7,9 @@
     <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-text-color flex items-center gap-2">
-                <i class="ri-history-line text-primary"></i> Activity Logs
+                {{-- <i class="ri-history-line text-primary"></i> --}}
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-ban-icon lucide-shield-ban"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m4.243 5.21 14.39 12.472"/></svg>
+                Activity Logs
             </h1>
         </div>
 
@@ -160,7 +162,7 @@
             </table>
         </div>
         
-        <x-pagination x-model="perPage" @change="fetchLogs()" />
+        <x-pagination />
     </div>
 </div>
 
@@ -177,72 +179,97 @@
             logs: [],
             search: '',
             isLoading: false,
-            pagination: {},
+            
+            // [កែសម្រួល ១] កំណត់ Variable សម្រាប់ Pagination
             perPage: '10',
+            currentPage: 1, 
+            pagination: { last_page: 1, total: 0 }, 
+            
             selectedIds: [],
             selectAll: false,
             
             // Column Visibility State
             showCols: JSON.parse(localStorage.getItem('log_table_cols')) || { 
-                causer: true, 
-                subject: true, 
-                changes: true, 
-                date: true 
+                causer: true, subject: true, changes: true, date: true 
             },
 
             init() {
-                // Save column state when changed
                 this.$watch('showCols', (value) => {
                     localStorage.setItem('log_table_cols', JSON.stringify(value));
                 });
                 this.fetchLogs();
             },
 
-            async fetchLogs(url = "{{ route('admin.activity_logs.fetch') }}") {
+            // [កែសម្រួល ២] Function ទាញទិន្នន័យ (កែសម្រួល logic)
+            async fetchLogs() {
                 this.isLoading = true;
                 const params = new URLSearchParams();
+                
                 if(this.search) params.append('keyword', this.search);
                 params.append('per_page', this.perPage);
                 
+                // [ចំណុចសំខាន់] បញ្ជូនលេខទំព័រទៅ Server
+                params.append('page', this.currentPage); 
+                
+                let url = "{{ route('admin.activity_logs.fetch') }}";
                 url = url.split('?')[0] + '?' + params.toString();
 
                 try {
                     const res = await fetch(url);
                     const data = await res.json();
+                    
                     this.logs = data.data;
+                    
+                    // Update Pagination Data
                     this.pagination = { 
-                        total: data.total, from: data.from, to: data.to, 
-                        prev_page_url: data.prev_page_url, next_page_url: data.next_page_url 
+                        total: data.total, 
+                        from: data.from, 
+                        to: data.to, 
+                        current_page: data.current_page,
+                        last_page: data.last_page, // យក last_page ពី server
+                        prev_page_url: data.prev_page_url, 
+                        next_page_url: data.next_page_url 
                     };
+                    
+                    // Sync currentPage
+                    this.currentPage = data.current_page;
+
                     this.selectedIds = [];
                     this.selectAll = false;
-                } catch (e) { console.error(e); } 
-                finally { this.isLoading = false; }
+                } catch (e) { 
+                    console.error(e); 
+                    window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: 'Failed to load data' } }));
+                } finally { 
+                    this.isLoading = false; 
+                }
             },
 
-            changePage(url) { if(url) this.fetchLogs(url); },
+            // [កែសម្រួល ៣] បន្ថែម Function gotoPage សម្រាប់ Component Pagination
+            gotoPage(page) {
+                if (page < 1 || (this.pagination.last_page && page > this.pagination.last_page)) return;
+                this.currentPage = page;
+                this.fetchLogs();
+            },
 
             toggleSelectAll() {
                 this.selectedIds = this.selectAll ? this.logs.map(log => log.id) : [];
             },
 
+            // --- Delete Logic (រក្សាទុកដដែល) ---
             async confirmDelete(id) {
-                askConfirm(async () => {
-                    await this.performDelete([id]);
-                });
+                askConfirm(async () => { await this.performDelete([id]); });
             },
 
             async confirmBulkDelete() {
                 if (this.selectedIds.length === 0) return;
-                askConfirm(async () => {
-                    await this.performDelete(this.selectedIds, true);
-                });
+                askConfirm(async () => { await this.performDelete(this.selectedIds, true); });
             },
 
             async performDelete(ids, isBulk = false) {
                 let url = isBulk 
                 ? "{{ route('admin.activity_logs.bulk_delete') }}" 
                 : "{{ route('admin.activity_logs.destroy', ':id') }}".replace(':id', ids[0]);
+                
                 let method = isBulk ? 'POST' : 'DELETE';
                 let body = isBulk ? JSON.stringify({ ids: ids }) : null;
 

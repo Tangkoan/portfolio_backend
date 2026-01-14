@@ -6,6 +6,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Ice Cream Admin</title>
+
+    @if(isset($shop) && $shop->fav)
+        <link rel="icon" type="image/png" href="{{ asset('storage/' . $shop->fav) }}">
+    @else
+        <link rel="icon" href="{{ asset('favicon.ico') }}">
+    @endif
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('components.toast')
@@ -242,67 +248,34 @@
     </div> --}}
 
     <script>
-        // ១. បង្កើត Function រួមមួយដើម្បីគ្រប់គ្រង Sidebar
-        function initSidebar() {
+        document.addEventListener('DOMContentLoaded', () => {
+            // ... (រក្សាកូដ Sidebar របស់អ្នកនៅដដែល) ...
             const body = document.body;
             const sidebar = document.getElementById('sidebar');
             const toggleBtn = document.getElementById('sidebarToggle');
-            
-            // --- ផ្នែកកំណត់ State (Collapsed ឬអត់) ---
             const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
-            
             if (isCollapsed) {
                 body.classList.add('collapsed');
-                if(sidebar) { 
-                    sidebar.classList.remove('w-72'); 
-                    sidebar.classList.add('w-20'); 
-                }
-                // បង្វិលព្រួញមកសភាពដើមវិញពេលបិទ
+                if(sidebar) { sidebar.classList.remove('w-72'); sidebar.classList.add('w-20'); }
                 document.querySelectorAll('.arrow-icon').forEach(el => el.classList.remove('rotate-180'));
-            } else {
-                body.classList.remove('collapsed');
-                if(sidebar) { 
-                    sidebar.classList.remove('w-20'); 
-                    sidebar.classList.add('w-72'); 
-                }
             }
-
-            // --- ផ្នែកចុចប៊ូតុង (Toggle Action) ---
             if(toggleBtn){
-                // សំគាល់៖ ប្រើ .onclick ជំនួស addEventListener ដើម្បីកុំឱ្យ Event ជាន់គ្នាពេល Livewire Re-render
-                toggleBtn.onclick = function() {
+                toggleBtn.addEventListener('click', () => {
                     body.classList.toggle('collapsed');
                     const isNowCollapsed = body.classList.contains('collapsed');
                     localStorage.setItem('sidebar-collapsed', isNowCollapsed);
-                    
                     if(sidebar) {
                         if (isNowCollapsed) {
-                            sidebar.classList.remove('w-72'); 
-                            sidebar.classList.add('w-20');
-                            // បិទ Submenu ទាំងអស់ពេលបង្រួម
-                            document.querySelectorAll('.submenu').forEach(el => el.classList.add('hidden'));
+                            sidebar.classList.remove('w-72'); sidebar.classList.add('w-20');
                             document.querySelectorAll('.arrow-icon').forEach(el => el.classList.remove('rotate-180'));
                         } else {
-                            sidebar.classList.remove('w-20'); 
-                            sidebar.classList.add('w-72');
+                            sidebar.classList.remove('w-20'); sidebar.classList.add('w-72');
                         }
                     }
-                };
+                });
             }
-        }
-
-        // ២. ហៅ Function នេះឱ្យដំណើរការ ២ ករណី៖
-        
-        // ករណីទី ១: ពេលចូល Web ដំបូង (Hard Refresh)
-        document.addEventListener('DOMContentLoaded', initSidebar);
-        
-        // ករណីទី ២: ពេល Livewire ប្តូរទំព័រ (SPA Navigation)
-        document.addEventListener('livewire:navigated', initSidebar);
-
-
-        // ៣. Function សម្រាប់ Submenu (ដាក់ចូល window ដើម្បីឱ្យ HTML ហៅប្រើបានគ្រប់ពេល)
-        window.toggleSubmenu = function(button) {
-            // បើ Sidebar កំពុងបិទ មិនឱ្យចុចបើក Submenu ទេ (ឱ្យវាចេញជា Popup ជំនួសវិញតាម CSS)
+        });
+        function toggleSubmenu(button) {
             if (document.body.classList.contains('collapsed')) return;
             
             const submenu = button.nextElementSibling;
