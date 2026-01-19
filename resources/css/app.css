@@ -1,3 +1,17 @@
+/* 1. Import Font ខ្មែរ (Nokora) និង អង់គ្លេស (Poppins) */
+@import url('https://fonts.googleapis.com/css2?family=Nokora:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 2. កំណត់ Font ខ្មែរ */
+.font-khmer {
+    font-family: 'Nokora', sans-serif !important;
+}
+
+/* 3. កំណត់ Font អង់គ្លេស (ដូរពី Figtree ទៅ Poppins) */
+.font-sans {
+    font-family: 'Poppins', sans-serif !important;
+}

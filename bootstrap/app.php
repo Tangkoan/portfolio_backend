@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
+
+        // បន្ថែម Middleware របស់អ្នកនៅត្រង់នេះ ដើម្បីកំណត់ភាសា
+        $middleware->web(append: [
+            \App\Http\Middleware\LocalizationMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

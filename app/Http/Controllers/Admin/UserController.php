@@ -4,62 +4,48 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
-use Illuminate\Validation\Rule; // [សំខាន់] ត្រូវហៅអា នេះមកប្រើ
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     // ==========================================
-    // [បន្ថែមថ្មី] HELPER FUNCTION: កំណត់សិទ្ធិមើល Role
+    // HELPER: កំណត់សិទ្ធិមើល Role (Security)
     // ==========================================
     private function getAllowedRoles()
     {
         $currentUser = Auth::user();
 
-        // ១. បើគាត់ជា Super Admin (Level ខ្ពស់បំផុត ឬមានឈ្មោះពិសេស)
+        // ១. បើគាត់ជា Super Admin (ធំបំផុត)
         if ($currentUser->hasRole('Super Admin')) {
             return Role::all();
         }
 
-        // ២. ទាញយក Level របស់ User បច្ចុប្បន្ន
-        // (សន្មតថា User ម្នាក់មាន Role តែមួយ, បើមានច្រើនយកអាធំបំផុត)
+        // ២. Admin ធម្មតាឃើញតែ Role ដែលតូចជាងខ្លួន
         $currentLevel = $currentUser->roles->max('level') ?? 0;
-
-        // ៣. Query យកតែ Role ណាដែលតូចជាង Level របស់គាត់
         return Role::where('level', '<', $currentLevel)->get();
     }
 
-    // 1. បង្ហាញទំព័រ User List
+    // ==========================================
+    // 1. VIEW & LIST (GET)
+    // ==========================================
     public function userList()
     {
-        // [កែប្រែ] លែងប្រើ Role::all() ហើយ ប្រើ Function ខាងលើជំនួស
-        // ដើម្បីកុំឱ្យ Admin ធម្មតាឃើញ Role "Super Admin" ក្នុង Dropdown
         $roles = $this->getAllowedRoles(); 
-        
         return view('admin.user.user_list', compact('roles'));
     }
 
-    // ... (Profile functions remain the same) ...
-    public function profile() { $user = Auth::user(); return view('admin.infouser.profile', compact('user')); }
-    public function updateProfile(Request $request) { /* ... keep your existing code ... */ return back()->with('success', 'Profile updated'); }
-    public function password() { return view('admin.infouser.password'); }
-    public function updatePassword(Request $request) { /* ... keep your existing code ... */ return back()->with('success', 'Password changed'); }
-
-    // ==========================================
-    // USER MANAGEMENT (CRUD + AJAX)
-    // ==========================================
-
-    // 2. ទទួលសំណើ AJAX ដើម្បីទាញយកទិន្នន័យ User
     public function fetchUsers(Request $request)
     {
         $query = User::with('roles');
 
-        // [បន្ថែមថ្មី] Security: បើមិនមែន Super Admin ទេ ហាមមើលឃើញ User ដែលជា Super Admin
-        // នេះការពារកុំឱ្យ Admin ធម្មតាដឹងថាគណនីណាខ្លះជាមេធំ ឬលួចកែ
+        // Security: Admin ធម្មតាមិនអាចឃើញ Super Admin ទេ
         if (!Auth::user()->hasRole('Super Admin')) {
             $query->whereDoesntHave('roles', function ($q) {
                 $q->where('name', 'Super Admin');
@@ -74,111 +60,146 @@ class UserController extends Controller
         }
 
         $perPage = $request->input('per_page', 10);
-        
-        if ($perPage === 'all') {
-            $users = $query->latest()->paginate(999999); 
-        } else {
-            $users = $query->latest()->paginate((int)$perPage);
-        }
+        $users = ($perPage === 'all') ? $query->latest()->paginate(999999) : $query->latest()->paginate((int)$perPage);
 
         return response()->json($users);
     }
 
-    // 3. បង្កើត User ថ្មី (Create)
+    // ==========================================
+    // 2. CREATE (POST)
+    // ==========================================
     public function store(Request $request)
     {
-        // [បន្ថែមថ្មី] ទាញយកឈ្មោះ Role ដែលអនុញ្ញាតអោយប្រើ
         $allowedRoles = $this->getAllowedRoles()->pluck('name')->toArray();
 
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:8',
-            'role'     => [
-                'required', 
-                // [បន្ថែមថ្មី - សំខាន់បំផុត!] Security Rule!
-                // ត្រួតពិនិត្យថា Role ដែលផ្ញើមករមាននៅក្នុង List ដែលអនុញ្ញាតឬអត់
-                // បើ Admin ព្យាយាម Hack ដាក់ 'Super Admin' វានឹង Error ភ្លាម
-                Rule::in($allowedRoles) 
-            ]
+            'role'     => ['required', Rule::in($allowedRoles)]
         ], [
-            'role.in' => 'You do not have permission to assign this role.' // Message បើសិនគេលួច Hack
+            'email.unique' => __('messages.email_duplicate'),
+            'role.in'      => __('messages.role_permission_denied'),
+            'required'     => __('messages.field_required'),
+            'min'          => __('messages.password_min'),
         ]);
 
-        $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        if ($validator->fails()) {
+            // Check ករណី Email ស្ទួន
+            if ($validator->errors()->has('email')) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => __('messages.email_duplicate'),
+                    'errors'  => $validator->errors()
+                ], 422);
+            }
+            return response()->json([
+                'status'  => 'error',
+                'message' => __('messages.invalid_data'),
+                'errors'  => $validator->errors()
+            ], 422);
+        }
 
-        $user->assignRole($request->role);
+        return DB::transaction(function () use ($request) {
+            $user = User::create([
+                'name'     => $request->name,
+                'email'    => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
 
-        // [បន្ថែម Manual Log]
-        activity()
-        ->causedBy(auth()->user())
-        ->performedOn($user)
-        ->withProperties(['role' => $request->role])
-        ->log('create user role');
+            $user->assignRole($request->role);
 
-        return response()->json(['message' => 'User created successfully!']);
+            activity()
+                ->causedBy(auth()->user())
+                ->performedOn($user)
+                ->withProperties(['role' => $request->role])
+                ->log('create user role');
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => __('messages.user_created'),
+            ], 200);
+        });
     }
 
-    // 4. កែប្រែ User (Update)
+    // ==========================================
+    // 3. UPDATE (PUT/PATCH)
+    // ==========================================
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
         $currentUser = Auth::user();
 
-        // [បន្ថែមថ្មី] Security Check: 
-        // បើ User ដែលគេចង់កែជា Super Admin ហើយអ្នកកែមិនមែន Super Admin => ហាម!
+        // Security: ហាមកែ Super Admin បើខ្លួនឯងមិនមែន
         if ($user->hasRole('Super Admin') && !$currentUser->hasRole('Super Admin')) {
-            return response()->json(['message' => 'Unauthorized! You cannot update a Super Admin account.'], 403);
+            return response()->json(['status' => 'error', 'message' => __('messages.unauthorized_action')], 403);
         }
 
-        // [បន្ថែមថ្មី] យក Role ដែលអនុញ្ញាត
         $allowedRoles = $this->getAllowedRoles()->pluck('name')->toArray();
 
-        $request->validate([
+        // Validator
+        $validator = Validator::make($request->all(), [
             'name'  => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'role'  => [
-                'required', 
-                // [បន្ថែមថ្មី] ការពារដូច store ដែរ
-                Rule::in($allowedRoles)
-            ]
+            // unique:table,column,except_id
+            'email' => 'required|email|unique:users,email,' . $id, 
+            'role'  => ['required', Rule::in($allowedRoles)]
+        ], [
+            'email.unique' => __('messages.email_duplicate'),
+            'role.in'      => __('messages.role_permission_denied'),
+            'required'     => __('messages.field_required'),
         ]);
 
-        $data = [
-            'name'  => $request->name,
-            'email' => $request->email,
-        ];
-
-        if ($request->password) {
-            $data['password'] = Hash::make($request->password);
+        if ($validator->fails()) {
+            if ($validator->errors()->has('email')) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => __('messages.email_duplicate'),
+                    'errors'  => $validator->errors()
+                ], 422);
+            }
+            return response()->json([
+                'status'  => 'error',
+                'message' => __('messages.invalid_data'),
+                'errors'  => $validator->errors()
+            ], 422);
         }
 
-        $user->update($data);
+        // Save Data
+        return DB::transaction(function () use ($request, $user) {
+            $data = [
+                'name'  => $request->name,
+                'email' => $request->email,
+            ];
 
-        // Update Role
-        $user->syncRoles([$request->role]);
-        // [បន្ថែម Manual Log]
-        activity()
-        ->causedBy(auth()->user())
-        ->performedOn($user)
-        ->withProperties(['role' => $request->role])
-        ->log('updated user role');
+            if ($request->password) {
+                $data['password'] = Hash::make($request->password);
+            }
 
-        return response()->json(['message' => 'User updated successfully!']);
+            $user->update($data);
+            $user->syncRoles([$request->role]);
+
+            activity()
+                ->causedBy(auth()->user())
+                ->performedOn($user)
+                ->withProperties(['role' => $request->role])
+                ->log('updated user role');
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => __('messages.user_updated'),
+            ]);
+        });
     }
 
-    // 5. លុប User (Delete)
+    // ==========================================
+    // 4. DELETE (DELETE)
+    // ==========================================
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        
-        // [បន្ថែមថ្មី] Security Check: ហាម Admin ធម្មតាលុប Super Admin
+
         if ($user->hasRole('Super Admin') && !Auth::user()->hasRole('Super Admin')) {
-            return response()->json(['message' => 'Unauthorized! You cannot delete a Super Admin account.'], 403);
+            return response()->json(['status' => 'error', 'message' => __('messages.unauthorized_action')], 403);
         }
 
         if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
@@ -187,27 +208,32 @@ class UserController extends Controller
 
         $user->delete();
 
-        return response()->json(['message' => 'User deleted successfully!']);
+        return response()->json([
+            'status'  => 'success',
+            'message' => __('messages.user_deleted')
+        ]);
     }
 
-    // 1. Bulk Delete
+    // ==========================================
+    // 5. BULK DELETE
+    // ==========================================
     public function bulkDestroy(Request $request)
     {
-        $request->validate([
-            'ids' => 'required|array',
+        $validator = Validator::make($request->all(), [
+            'ids'   => 'required|array',
             'ids.*' => 'exists:users,id'
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' => __('messages.invalid_data')], 422);
+        }
 
         $users = User::whereIn('id', $request->ids)->get();
         $deletedCount = 0;
         $currentUser = Auth::user();
 
         foreach ($users as $user) {
-            // [បន្ថែមថ្មី] Security Check ក្នុង Loop
-            // រំលង (Skip) ការលុប ប្រសិនបើជា Super Admin ហើយអ្នកលុបមិនមែន
-            if ($user->hasRole('Super Admin') && !$currentUser->hasRole('Super Admin')) {
-                continue; 
-            }
+            if ($user->hasRole('Super Admin') && !$currentUser->hasRole('Super Admin')) continue;
 
             if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
                 Storage::disk('public')->delete($user->avatar);
@@ -216,40 +242,44 @@ class UserController extends Controller
             $deletedCount++;
         }
 
-        return response()->json(['message' => $deletedCount . ' users deleted successfully!']);
+        return response()->json([
+            'status'  => 'success',
+            'message' => __('messages.bulk_delete_success', ['count' => $deletedCount])
+        ]);
     }
 
-    // 2. Bulk Edit
+    // ==========================================
+    // 6. BULK UPDATE
+    // ==========================================
     public function bulkUpdate(Request $request)
     {
-        // [បន្ថែមថ្មី] យក Role ដែលអនុញ្ញាត
         $allowedRoles = $this->getAllowedRoles()->pluck('name')->toArray();
 
-        $request->validate([
-            'ids' => 'required|array',
-            'role' => [
-                'required', 
-                'exists:roles,name',
-                // [បន្ថែមថ្មី] ការពារមិនឱ្យ Bulk Update ទៅជា Super Admin
-                Rule::in($allowedRoles)
-            ]
+        $validator = Validator::make($request->all(), [
+            'ids'  => 'required|array',
+            'role' => ['required', 'exists:roles,name', Rule::in($allowedRoles)]
+        ], [
+            'role.in' => __('messages.role_permission_denied')
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' => __('messages.invalid_data'), 'errors' => $validator->errors()], 422);
+        }
 
         $users = User::whereIn('id', $request->ids)->get();
         $updatedCount = 0;
         $currentUser = Auth::user();
 
         foreach($users as $user) {
-            // [បន្ថែមថ្មី] Security Check: 
-            // ហាមប្តូរ Role របស់ Super Admin បើអ្នកធ្វើមិនមែន Super Admin
-            if ($user->hasRole('Super Admin') && !$currentUser->hasRole('Super Admin')) {
-                continue;
-            }
+            if ($user->hasRole('Super Admin') && !$currentUser->hasRole('Super Admin')) continue;
 
             $user->syncRoles([$request->role]);
             $updatedCount++;
         }
 
-        return response()->json(['message' => 'Roles updated for ' . $updatedCount . ' users!']);
+        return response()->json([
+            'status'  => 'success',
+            'message' => __('messages.bulk_update_success', ['count' => $updatedCount])
+        ]);
     }
 }

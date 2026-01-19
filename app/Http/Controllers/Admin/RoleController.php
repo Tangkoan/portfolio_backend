@@ -24,11 +24,9 @@ class RoleController extends Controller
         $myLevel = auth()->user()->roles->max('level') ?? 0;
 
         // ២. បើមិនមែន Super Admin (99) ទេ
-        // ឃើញតែ Role ណាដែល *តូចជាង* ខ្លួនឯង (Strictly Less Than)
         if ($myLevel < 99) { 
             $query->where('level', '<', $myLevel); 
         }
-        // *សម្គាល់៖ បើគាត់ជា Super Admin (99) គាត់នឹងឃើញទាំងអស់ ព្រោះ Level ទាំងអស់តូចជាង 99
 
         if ($request->keyword) {
             $query->where('name', 'like', '%' . $request->keyword . '%');
@@ -41,35 +39,29 @@ class RoleController extends Controller
         return response()->json($roles);
     }
 
-    // នៅក្នុង RoleController.php
     public function store(Request $request)
     {
-        // ១. រកមើល Level របស់អ្នកដែលកំពុង Login
-        // (សន្មតថា User ម្នាក់មាន Role តែមួយ បើច្រើនយកអាធំបំផុត)
         $currentUserLevel = auth()->user()->roles->max('level') ?? 0;
 
-        // ២. Validate
         $request->validate([
             'name' => 'required|unique:roles,name',
             'level' => [
                 'required', 
                 'integer', 
                 'min:0', 
-                // ហាមបង្កើត Role ដែលមាន Level ធំជាងខ្លួនឯង
                 'max:' . $currentUserLevel 
             ]
         ], [
-            'level.max' => 'You cannot create a role with a level higher than your own (' . $currentUserLevel . ').',
+            // ប្រើ __() ដើម្បីហៅសារពីឯកសារ messages
+            'level.max' => __('messages.error_level_max', ['level' => $currentUserLevel]),
         ]);
 
-        // ៣. បង្កើត Role
-        // (ត្រូវប្រាកដថាអ្នកបានដាក់ 'level' ក្នុង $fillable នៃ Role Model)
         Role::create([
             'name' => $request->name,
             'level' => $request->level
         ]);
         
-        return response()->json(['message' => 'Role created successfully!']);
+        return response()->json(['message' => __('messages.success_create')]);
     }
 
     public function update(Request $request, $id)
@@ -77,10 +69,8 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
         $currentUserLevel = auth()->user()->roles->max('level') ?? 0;
         
-
-        // ១. Security Check: ហាមកែ Role អ្នកធំ
         if ($role->level > $currentUserLevel) {
-            return response()->json(['message' => 'Unauthorized: You cannot edit a role with a higher level than yours.'], 403);
+            return response()->json(['message' => __('messages.error_unauthorized_edit')], 403);
         }
 
         $request->validate([
@@ -93,7 +83,7 @@ class RoleController extends Controller
             'level' => $request->level
         ]);
 
-        return response()->json(['message' => 'Role updated successfully!']);
+        return response()->json(['message' => __('messages.success_update')]);
     }
 
     public function destroy($id)
@@ -101,53 +91,51 @@ class RoleController extends Controller
         $role = Role::withCount('users')->findOrFail($id);
         $currentUserLevel = auth()->user()->roles->max('level') ?? 0;
 
-        // ១. Security Check: ហាមលុប Role អ្នកធំ
         if ($role->level > $currentUserLevel) {
-            return response()->json(['message' => 'Unauthorized: You cannot delete a role with a higher level than yours.'], 403);
+            return response()->json(['message' => __('messages.error_unauthorized_delete')], 403);
         }
 
         if ($role->users_count > 0) {
             return response()->json([
-                'message' => "Cannot delete role '{$role->name}' because it has {$role->users_count} users assigned."
+                'message' => __('messages.error_has_users', ['name' => $role->name, 'count' => $role->users_count])
             ], 422);
         }
 
         $role->delete();
-        return response()->json(['message' => 'Role deleted successfully!']);
+        return response()->json(['message' => __('messages.success_delete')]);
     }
 
-    // 3. មុខងារ Bulk Delete (ថ្មី)
     public function bulkDelete(Request $request)
     {
         $ids = $request->ids;
         
-        // រកមើល Roles ដែលមាន User ប្រើប្រាស់
         $rolesWithUsers = Role::whereIn('id', $ids)->has('users')->pluck('name')->toArray();
 
-        // ប្រសិនបើមាន Role ណាមួយជាប់ User ឈប់ដំណើរការទាំងអស់ ហើយប្រាប់គេ
         if (!empty($rolesWithUsers)) {
             $names = implode(', ', $rolesWithUsers);
             return response()->json([
-                'message' => "Cannot delete select roles. The following roles have users: {$names}."
+                'message' => __('messages.error_bulk_has_users', ['names' => $names])
             ], 422);
         }
 
-        // បើគ្មានជាប់ User ទេ លុបទាំងអស់
         Role::whereIn('id', $ids)->delete();
 
-        return response()->json(['message' => 'Selected roles deleted successfully!']);
+        return response()->json(['message' => __('messages.success_bulk_delete')]);
     }
 
-    // 4. មុខងារសម្រាប់ Permission Modal (Fetch Data)
     public function getRolePermissions($id)
     {
         $role = Role::findOrFail($id);
-        // Return តែឈ្មោះ permission ដើម្បីឱ្យ Checkbox ក្នុង Vue/Alpine ស្គាល់
-        $permissions = $role->permissions->pluck('name');
-        return response()->json($permissions);
+        // សន្មតថាអ្នកមាន logic សម្រាប់ available_permissions នៅទីនេះ ឬក៏ return ទាំងអស់
+        $availablePermissions = Permission::all(); 
+        $rolePermissions = $role->permissions->pluck('name');
+
+        return response()->json([
+            'available_permissions' => $availablePermissions,
+            'checked_permissions' => $rolePermissions
+        ]);
     }
 
-    // 5. មុខងារ Update Permissions (Save Data)
     public function updateRolePermissions(Request $request)
     {
         $request->validate([
@@ -156,16 +144,10 @@ class RoleController extends Controller
         ]);
 
         $role = Role::findOrFail($request->role_id);
-        
-        // syncPermissions នឹងលុបចាស់ចោល ហើយដាក់ថ្មីចូល (ល្អបំផុតសម្រាប់ Checkbox)
         $role->syncPermissions($request->permissions);
-        // [បន្ថែម Manual Log]
-        activity()
-        ->causedBy(auth()->user())
-        ->performedOn($role) // ដាក់ Role ជា Subject
-        ->withProperties(['permissions' => $request->permissions]) // ទុកដានថាដាក់សិទ្ធិអ្វីខ្លះ
-        ->log('assigned permissions to role');
 
-        return response()->json(['message' => 'Permissions assigned successfully!']);
+        // Optional logging here
+
+        return response()->json(['message' => __('messages.success_permission_assign')]);
     }
 }

@@ -6,9 +6,8 @@
     <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-text-color flex items-center gap-2">
-                {{-- <i class="ri-shield-user-line text-primary"></i> --}}
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-user-icon lucide-shield-user"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M6.376 18.91a6 6 0 0 1 11.249.003"/><circle cx="12" cy="11" r="4"/></svg>
-                Role Management
+                {{ __('messages.role_management') }}
             </h1>
         </div>
 
@@ -16,18 +15,20 @@
             
             <div x-show="selectedIds.length > 0" x-transition.opacity.duration.300ms 
                  class="flex items-center gap-2 mr-2 bg-white dark:bg-gray-800 p-1 rounded-lg border border-border-color shadow-sm">
-                <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-1.5 rounded ml-1 whitespace-nowrap" x-text="selectedIds.length + ' selected'"></span>
+                <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-1.5 rounded ml-1 whitespace-nowrap">
+                    <span x-text="selectedIds.length"></span> {{ __('messages.selected') }}
+                </span>
                 
                 <div class="flex gap-1">
                     @can('role-edit')
-                    <button @click="startSequentialEdit()" class="text-sm font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-md transition" title="Edit Sequence">
-                        <i class="ri-edit-circle-line mr-1"></i> Edit
+                    <button @click="startSequentialEdit()" class="text-sm font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-md transition" title="{{ __('messages.edit') }}">
+                        <i class="ri-edit-circle-line mr-1"></i> {{ __('messages.edit') }}
                     </button>
                     @endcan
 
                     @can('role-delete')
-                    <button @click="confirmBulkDelete()" class="text-sm font-bold text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-md transition" title="Delete Selected">
-                        <i class="ri-delete-bin-line mr-1"></i> Delete
+                    <button @click="confirmBulkDelete()" class="text-sm font-bold text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-md transition" title="{{ __('messages.delete') }}">
+                        <i class="ri-delete-bin-line mr-1"></i> {{ __('messages.delete') }}
                     </button>
                     @endcan
                 </div>
@@ -36,17 +37,17 @@
             <div class="relative" x-data="{ openCol: false }">
                 <button @click="openCol = !openCol" @click.outside="openCol = false" 
                         class="flex justify-center items-center gap-2 px-3 py-2.5 bg-card-bg border border-input-border rounded-xl text-text-color hover:bg-input-bg transition text-sm font-medium shadow-sm">
-                    <i class="ri-layout-column-line"></i> Columns
+                    <i class="ri-layout-column-line"></i> {{ __('messages.columns') }}
                 </button>
                 <div x-show="openCol" class="absolute right-0 mt-2 w-48 bg-card-bg border border-border-color rounded-xl shadow-xl z-50 p-2" style="display: none;" x-transition>
                     <div class="space-y-1">
                         <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-page-bg rounded cursor-pointer select-none">
                             <input type="checkbox" x-model="showCols.permissions" class="rounded text-primary focus:ring-primary border-input-border">
-                            <span class="text-sm text-text-color">Permissions</span>
+                            <span class="text-sm text-text-color">{{ __('messages.th_permissions') }}</span>
                         </label>
                         <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-page-bg rounded cursor-pointer select-none">
                             <input type="checkbox" x-model="showCols.users_count" class="rounded text-primary focus:ring-primary border-input-border">
-                            <span class="text-sm text-text-color">Users Count</span>
+                            <span class="text-sm text-text-color">{{ __('messages.th_users') }}</span>
                         </label>
                     </div>
                 </div>
@@ -58,7 +59,7 @@
                 </span>
                 <input type="text" x-model="search" @keyup.debounce.500ms="fetchRoles()"
                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-input-border bg-card-bg text-text-color focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder-secondary text-sm shadow-sm"
-                       placeholder="Search roles...">
+                       placeholder="{{ __('messages.search_placeholder') }}">
             </div>
 
             <button 
@@ -67,9 +68,8 @@
                 @can('role-create') bg-primary hover:opacity-90 @else bg-gray-400 cursor-not-allowed opacity-70 @endcan"
                 @cannot('role-create') disabled @endcannot
             >
-                {{-- <i class="ri-add-circle-line"></i>  --}}
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-plus-icon lucide-circle-plus"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
-                <span>Add Role</span>
+                <span>{{ __('messages.add_role') }}</span>
             </button>
         </div>
     </div>
@@ -82,11 +82,11 @@
                         <th class="px-6 py-4 w-4">
                             <input type="checkbox" @change="toggleSelectAll()" x-model="selectAll" class="rounded border-input-border text-primary focus:ring-primary h-4 w-4 cursor-pointer">
                         </th>
-                        <th class="px-6 py-4 font-bold w-1/4">Role Name</th>
-                        <th class="px-6 py-4 font-bold">Level</th>
-                        <th class="px-6 py-4 font-bold" x-show="showCols.permissions">Permissions Preview</th>
-                        <th class="px-6 py-4 font-bold text-center" x-show="showCols.users_count">Users</th>
-                        <th class="px-6 py-4 font-bold text-right w-40">Actions</th>
+                        <th class="px-6 py-4 font-bold w-1/4">{{ __('messages.th_role_name') }}</th>
+                        <th class="px-6 py-4 font-bold">{{ __('messages.th_level') }}</th>
+                        <th class="px-6 py-4 font-bold" x-show="showCols.permissions">{{ __('messages.th_permissions') }}</th>
+                        <th class="px-6 py-4 font-bold text-center" x-show="showCols.users_count">{{ __('messages.th_users') }}</th>
+                        <th class="px-6 py-4 font-bold text-right w-40">{{ __('messages.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border-color">
@@ -112,12 +112,12 @@
                                                       x-text="perm.name.replace(/-/g, ' ')"></span>
                                             </template>
                                             <span x-show="role.permissions.length > 5" class="text-xs text-secondary px-1 self-center">
-                                                +<span x-text="role.permissions.length - 5"></span> more
+                                                +<span x-text="role.permissions.length - 5"></span> {{ __('messages.more') }}
                                             </span>
                                         </div>
                                     </template>
                                     <span x-show="!role.permissions || role.permissions.length === 0" class="text-xs text-secondary italic opacity-50">
-                                        No permissions assigned
+                                        {{ __('messages.no_permissions_assigned') }}
                                     </span>
                                 </div>
                             </td>
@@ -156,15 +156,14 @@
                     <tr x-show="roles.length === 0">
                         <td colspan="6" class="px-6 py-12 text-center text-secondary">
                             <i class="ri-shield-line text-4xl mb-2 inline-block"></i>
-                            <p>No roles found.</p>
+                            <p>{{ __('messages.no_roles_found') }}</p>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
         
-        {{-- ហៅប្រើ Component នៅទីនេះ --}}
-<x-pagination />
+        <x-pagination />
     </div>
 
     <div x-show="isModalOpen" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center px-4" x-cloak>
@@ -173,9 +172,11 @@
              x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95 translate-y-4" x-transition:enter-end="opacity-100 scale-100 translate-y-0">
             <div class="px-6 py-4 border-b border-border-color flex justify-between items-center" :class="isSequenceMode ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-page-bg/30'">
                 <div>
-                    <h3 class="text-lg font-bold text-text-color" x-text="editMode ? 'Edit Role' : 'Create New Role'"></h3>
+                    <h3 class="text-lg font-bold text-text-color" x-text="editMode ? '{{ __('messages.edit_role') }}' : '{{ __('messages.create_new_role') }}'"></h3>
                     <template x-if="isSequenceMode">
-                        <p class="text-xs text-primary font-bold mt-1">Editing role <span x-text="currentSeqIndex + 1"></span> of <span x-text="sequenceQueue.length"></span></p>
+                        <p class="text-xs text-primary font-bold mt-1">
+                            {{ __('messages.editing_sequence', ['current' => '<span x-text="currentSeqIndex + 1"></span>', 'total' => '<span x-text="sequenceQueue.length"></span>']) }}
+                        </p>
                     </template>
                 </div>
                 <button @click="closeModal(true)" class="text-secondary hover:text-text-color"><i class="ri-close-line text-xl"></i></button>
@@ -184,37 +185,35 @@
 
             <form @submit.prevent="submitForm" class="p-6 space-y-4">
                 <div>
-                    <label class="block text-sm font-bold text-text-color mb-1">Role Name</label>
+                    <label class="block text-sm font-bold text-text-color mb-1">{{ __('messages.role_name') }}</label>
                     <input type="text" x-model="form.name" class="w-full px-4 py-2.5 rounded-lg border border-input-border bg-input-bg text-text-color focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" placeholder="e.g., Manager">
                     <p x-show="errors.name" x-text="errors.name" class="text-red-500 text-xs mt-1"></p>
                 </div>
 
                 <div>
                     <div class="flex justify-between">
-                        <label class="block text-sm font-bold text-text-color mb-1">Role Level (Priority)</label>
-                        <span class="text-xs text-secondary">(Higher = More Power)</span>
+                        <label class="block text-sm font-bold text-text-color mb-1">{{ __('messages.role_level') }}</label>
+                        <span class="text-xs text-secondary">{{ __('messages.level_hint_1') }}</span>
                     </div>
                     <input type="number" x-model="form.level" class="w-full px-4 py-2.5 rounded-lg border border-input-border bg-input-bg text-text-color focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" placeholder="e.g., 10">
                     <p class="text-xs text-secondary mt-1">
-                        Example: User=10, Manager=30, Admin=50.
+                        {{ __('messages.level_hint_2') }}
                     </p>
                     <p x-show="errors.level" x-text="errors.level" class="text-red-500 text-xs mt-1"></p>
                 </div>
 
                 <div class="pt-4 flex justify-between items-center border-t border-border-color mt-2">
-                    <button type="button" x-show="isSequenceMode" @click="nextInSequence()" class="text-secondary hover:text-text-color text-sm font-bold px-2">Skip <i class="ri-arrow-right-line align-middle"></i></button>
+                    <button type="button" x-show="isSequenceMode" @click="nextInSequence()" class="text-secondary hover:text-text-color text-sm font-bold px-2">{{ __('messages.skip') }} <i class="ri-arrow-right-line align-middle"></i></button>
                     <div x-show="!isSequenceMode"></div> 
                     <div class="flex gap-3">
-                        <button type="button" @click="closeModal(true)" class="px-4 py-2 rounded-lg border border-input-border text-text-color hover:bg-page-bg transition">Cancel</button>
+                        <button type="button" @click="closeModal(true)" class="px-4 py-2 rounded-lg border border-input-border text-text-color hover:bg-page-bg transition">{{ __('messages.cancel') }}</button>
                         <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg hover:opacity-90 transition flex items-center gap-2" :disabled="isLoading">
                             <i x-show="isLoading" class="ri-loader-4-line animate-spin"></i>
-                            <span x-text="isSequenceMode ? (currentSeqIndex + 1 === sequenceQueue.length ? 'Finish' : 'Save & Next') : (editMode ? 'Update' : 'Save')"></span>
+                            <span x-text="isSequenceMode ? (currentSeqIndex + 1 === sequenceQueue.length ? '{{ __('messages.finish') }}' : '{{ __('messages.save_next') }}') : (editMode ? '{{ __('messages.update') }}' : '{{ __('messages.save') }}')"></span>
                         </button>
                     </div>
                 </div>
             </form>
-
-            
         </div>
     </div>
 
@@ -229,7 +228,7 @@
                         <i class="ri-shield-keyhole-line text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-text-color">Assign Permissions</h3>
+                        <h3 class="text-lg font-bold text-text-color">{{ __('messages.assign_permissions') }}</h3>
                         <p class="text-xs text-secondary">Role: <span class="font-bold text-primary" x-text="permissionForm.roleName"></span></p>
                     </div>
                 </div>
@@ -238,10 +237,10 @@
 
             <div class="overflow-y-auto p-6 bg-card-bg">
                 <div class="flex justify-between items-center mb-4">
-                    <label class="text-sm font-bold text-text-color">Select Permissions</label>
+                    <label class="text-sm font-bold text-text-color">{{ __('messages.select_permissions') }}</label>
                     <div class="flex gap-3">
-                        <button type="button" @click="selectAllPermissions()" class="text-xs text-primary font-bold hover:underline">Select All</button>
-                        <button type="button" @click="permissionForm.permissions = []" class="text-xs text-red-500 font-bold hover:underline">Uncheck All</button>
+                        <button type="button" @click="selectAllPermissions()" class="text-xs text-primary font-bold hover:underline">{{ __('messages.select_all') }}</button>
+                        <button type="button" @click="permissionForm.permissions = []" class="text-xs text-red-500 font-bold hover:underline">{{ __('messages.uncheck_all') }}</button>
                     </div>
                 </div>
 
@@ -257,17 +256,101 @@
                         </label>
                     </template>
                     <div x-show="allAvailablePermissions.length === 0" class="col-span-full text-center text-gray-500 py-4">
-                        No assignable permissions found.
+                        {{ __('messages.no_assignable_permissions') }}
                     </div>
                 </div>
             </div>
 
             <div class="px-6 py-4 border-t border-border-color bg-page-bg/30 flex justify-end gap-3 flex-shrink-0">
-                <button type="button" @click="isPermissionModalOpen = false" class="px-4 py-2 rounded-lg border border-input-border text-text-color hover:bg-page-bg transition">Cancel</button>
+                <button type="button" @click="isPermissionModalOpen = false" class="px-4 py-2 rounded-lg border border-input-border text-text-color hover:bg-page-bg transition">{{ __('messages.cancel') }}</button>
                 <button type="button" @click="submitPermissions" class="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:opacity-90 transition flex items-center gap-2" :disabled="isLoading">
                     <i x-show="isLoading" class="ri-loader-4-line animate-spin"></i>
-                    <span x-text="isLoading ? 'Saving...' : 'Save Permissions'"></span>
+                    <span x-text="isLoading ? '{{ __('messages.saving') }}' : '{{ __('messages.save_permissions') }}'"></span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <div x-data="{ 
+            open: false, 
+            callback: null,
+            title: '{{ __('messages.confirm_delete_title') }}', 
+            message: '{{ __('messages.confirm_delete_msg') }}',
+            
+            init() {
+                window.askConfirm = (actionCallback) => {
+                    this.callback = actionCallback;
+                    this.open = true;
+                }
+            },
+
+            confirm() {
+                if (this.callback) {
+                    this.callback();
+                }
+                this.close();
+            },
+
+            close() {
+                this.open = false;
+                setTimeout(() => { this.callback = null }, 300);
+            }
+        }"
+        @keydown.escape.window="close()"
+        x-show="open"
+        style="display: none;"
+        class="relative z-[200]" 
+        aria-labelledby="modal-title" 
+        role="dialog" 
+        aria-modal="true" x-cloak>
+
+        <div x-show="open"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm"></div>
+
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                
+                <div x-show="open"
+                     @click.away="close()"
+                     x-transition:enter="ease-out duration-300"
+                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                     x-transition:leave="ease-in duration-200"
+                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                     class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-200">
+                    
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                </svg>
+                            </div>
+                            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                                <h3 class="text-base font-bold leading-6 text-gray-900" x-text="title"></h3>
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-500" x-text="message"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-3">
+                        <button type="button" @click="confirm()" class="inline-flex w-full justify-center rounded-xl bg-red-600 px-3 py-2 text-sm font-bold text-white shadow-lg shadow-red-600/30 hover:bg-red-500 sm:w-auto transition-all">
+                            {{ __('messages.btn_yes_confirm') }}
+                        </button>
+                        <button type="button" @click="close()" class="mt-3 inline-flex w-full justify-center rounded-xl bg-white text-gray-900 px-3 py-2 text-sm font-bold shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition-colors">
+                            {{ __('messages.cancel') }}
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -282,9 +365,9 @@
             isLoading: false, 
             errors: {}, 
             
-            // Pagination Variables (ត្រូវតែមាន)
+            // Pagination Variables
             perPage: '10', 
-            currentPage: 1, // [កែសម្រួល] កំណត់តម្លៃដើម
+            currentPage: 1, 
             pagination: { last_page: 1, total: 0 }, 
             
             // Selection & Bulk Edit
@@ -310,15 +393,12 @@
                 this.fetchRoles();
             },
 
-            // [កែសម្រួល] Function នេះត្រូវបានកែដើម្បីបញ្ជូន page ទៅ Server
             async fetchRoles() {
                 let url = "{{ route('admin.roles.fetch') }}";
                 const params = new URLSearchParams();
                 
                 if(this.search) params.append('keyword', this.search);
                 params.append('per_page', this.perPage);
-                
-                // [ចំណុចសំខាន់ដែលអ្នកបាត់] បញ្ជូនលេខទំព័រទៅ Server
                 params.append('page', this.currentPage);
 
                 url = url.split('?')[0] + '?' + params.toString();
@@ -330,7 +410,6 @@
                     
                     this.roles = data.data;
                     
-                    // Update Pagination Data
                     this.pagination = { 
                         total: data.total, 
                         from: data.from, 
@@ -341,29 +420,25 @@
                         next_page_url: data.next_page_url 
                     };
                     
-                    // Sync currentPage ជាមួយ Server
                     this.currentPage = data.current_page;
-
                     this.selectedIds = [];
                     this.selectAll = false;
-                } catch (e) { console.error(e); } 
+                } catch (e) { 
+                    console.error(e); 
+                    window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: "{{ __('messages.network_error') }}" } }));
+                } 
                 finally { this.isLoading = false; }
             },
             
-            // [ចំណុចសំខាន់ដែលអ្នកបាត់] Function សម្រាប់ Component Pagination ហៅប្រើ
             gotoPage(page) {
-                // ការពារកុំឱ្យចុចលើស ឬ ក្រោមទំព័រដែលមាន
                 if (page < 1 || (this.pagination.last_page && page > this.pagination.last_page)) return;
-                
-                this.currentPage = page; // ប្ដូរលេខ
-                this.fetchRoles();       // ហៅទិន្នន័យថ្មី
+                this.currentPage = page; 
+                this.fetchRoles();      
             },
 
             toggleSelectAll() { 
                 this.selectedIds = this.selectAll ? this.roles.map(role => role.id) : []; 
             },
-
-            // ... (កូដខាងក្រោមនេះ រក្សាទុកដដែលបាន) ...
 
             // --- BULK EDIT ---
             startSequentialEdit() {
@@ -393,7 +468,7 @@
                 this.errors = {}; 
             },
             closeModal(force = false) {
-                if (!force && this.isSequenceMode && !confirm("Stop editing sequence?")) return;
+                if (!force && this.isSequenceMode && !confirm("{{ __('messages.stop_editing_sequence') }}")) return;
                 this.isModalOpen = false; this.isSequenceMode = false; this.selectedIds = []; this.fetchRoles();
             },
             async submitForm() {
@@ -409,12 +484,15 @@
                     const data = await res.json();
                     if (!res.ok) {
                         if (res.status === 422) this.errors = data.errors;
-                        else window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: 'Error occurred!' } }));
+                        else window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: data.message || "{{ __('messages.error_generic') }}" } }));
                     } else {
                         window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: data.message } }));
                         if (this.isSequenceMode) this.nextInSequence(); else { this.isModalOpen = false; this.fetchRoles(); }
                     }
-                } catch (e) { console.error(e); } finally { this.isLoading = false; }
+                } catch (e) { 
+                    console.error(e); 
+                    window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: "{{ __('messages.network_error') }}" } }));
+                } finally { this.isLoading = false; }
             },
 
             // --- DELETE ---
@@ -434,8 +512,11 @@
                     if(res.ok) {
                         this.selectedIds = []; this.selectAll = false; this.fetchRoles();
                         window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: data.message } }));
-                    } else window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: data.message || 'Cannot delete.' } }));
-                } catch(e) { console.error(e); }
+                    } else window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: data.message || "{{ __('messages.error_generic') }}" } }));
+                } catch(e) { 
+                    console.error(e); 
+                    window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: "{{ __('messages.network_error') }}" } }));
+                }
             },
 
             // --- PERMISSION Logic ---
@@ -450,7 +531,10 @@
                     const data = await res.json();
                     this.allAvailablePermissions = data.available_permissions;
                     this.permissionForm.permissions = data.checked_permissions; 
-                } catch (e) { console.error(e); }
+                } catch (e) { 
+                    console.error(e); 
+                    window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: "{{ __('messages.network_error') }}" } }));
+                }
             },
             selectAllPermissions() {
                 this.permissionForm.permissions = this.allAvailablePermissions.map(p => p.name);
@@ -467,8 +551,11 @@
                     if(res.ok) {
                         this.isPermissionModalOpen = false; this.fetchRoles();
                         window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: data.message } }));
-                    } else window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: data.message || 'Failed.' } }));
-                } catch (e) { console.error(e); } finally { this.isLoading = false; }
+                    } else window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: data.message || "{{ __('messages.error_generic') }}" } }));
+                } catch (e) { 
+                    console.error(e);
+                    window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: "{{ __('messages.network_error') }}" } }));
+                } finally { this.isLoading = false; }
             }
         }
     }

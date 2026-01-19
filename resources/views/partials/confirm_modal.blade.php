@@ -1,8 +1,8 @@
 <div x-data="{ 
         open: false, 
         callback: null,
-        title: 'Do you want to delete this data?',
-        message: 'This Action can not Recover!!!',
+        title: '{{ __('messages.confirm_delete_title') }}',
+        message: '{{ __('messages.confirm_delete_message') }}',
         
         init() {
             window.askConfirm = (actionCallback) => {
@@ -76,13 +76,13 @@
                     <button type="button" 
                             @click="confirm()" 
                             class="inline-flex w-full justify-center rounded-xl bg-primary px-3 py-2 text-sm font-bold text-white shadow-lg shadow-primary/30 hover:opacity-90 sm:w-auto transition-all">
-                        Yes, Confirm!
+                        {{ __('messages.btn_confirm') }}
                     </button>
                     
                     <button type="button" 
                             @click="close()" 
                             class="mt-3 inline-flex w-full justify-center rounded-xl bg-red-500 text-white px-3 py-2 text-sm font-bold  shadow-sm ring-1 ring-inset ring-input-border  sm:mt-0 sm:w-auto transition-colors">
-                        Cancel
+                        {{ __('messages.btn_cancel') }}
                     </button>
                 </div>
             </div>

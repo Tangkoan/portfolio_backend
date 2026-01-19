@@ -10,6 +10,12 @@ export default {
     ],
     theme: {
         extend: {
+            fontFamily: {
+                sans: ['Figtree',],
+                // កែពី Kantumruy Pro ទៅ Nokora
+                khmer: ['"Nokora"', 'sans-serif'],
+                
+            },
             colors: {
                 // ប្រើ rgb(var(...) / <alpha-value>) ដើម្បីឱ្យ Tailwind ស្គាល់ Opacity
                 primary: 'rgb(var(--color-primary) / <alpha-value>)',

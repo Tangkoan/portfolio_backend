@@ -23,6 +23,7 @@
             <div class="flex flex-col sidebar-text overflow-hidden whitespace-nowrap">
                 {{-- បង្ហាញឈ្មោះហាង ឬដាក់ Default បើអត់ទាន់មាន --}}
                 <span class="text-lg font-bold tracking-tight text-text-color truncate">
+                    {{-- ចំណាំ៖ កន្លែងនេះបើចង់ឱ្យឈ្មោះហាងដូរតាមភាសាដែរ ទាល់តែក្នុង DB មាន Column shop_kh --}}
                     {{ $shop->shop_en ?? 'POS System' }}
                 </span>
                 {{-- បង្ហាញ Role របស់អ្នកប្រើប្រាស់ --}}
@@ -30,7 +31,7 @@
                         title="{{ auth()->user()->getRoleNames()->implode(', ') }}">
                         
                         {{-- បង្ហាញ Role ទីមួយដែលគេមាន ឬដាក់ថា Staff បើអត់មាន Role --}}
-                        {{ auth()->user()->getRoleNames()->first() ?? 'Staff Member' }}
+                        {{ auth()->user()->getRoleNames()->first() ?? __('sidebar.staff_member') }}
                     
                     </span>
             </div>
@@ -47,16 +48,18 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
                 </svg>
-                <span class="sidebar-text font-medium​ px-2">Dashboard</span>
+                <span class="sidebar-text font-medium px-2">{{ __('sidebar.dashboard') }}</span>
             </a>
-            <div class="tooltip hidden absolute left-[100%] top-2 ml-4 bg-gray-900 text-white text-xs px-3 py-2 rounded shadow-xl z-50 whitespace-nowrap">Dashboard</div>
+            <div class="tooltip hidden absolute left-[100%] top-2 ml-4 bg-gray-900 text-white text-xs px-3 py-2 rounded shadow-xl z-50 whitespace-nowrap">
+                {{ __('sidebar.dashboard') }}
+            </div>
         </div>
  
         {{-- ពិនិត្យមើលសិនថា តើ User មានសិទ្ធិមើល Menu ណាមួយក្នុង Group នេះឬអត់? --}} 
         @if(auth()->user()->can('user-list') || auth()->user()->can('role-list') || auth()->user()->can('permission-list') || auth()->user()->hasRole('Super Admin'))
             
             <div class="px-4 mt-6 mb-2 sidebar-text">
-                <span class="text-[11px] font-bold opacity-50 uppercase tracking-wider">User Management</span>
+                <span class="text-[11px] font-bold opacity-50 uppercase tracking-wider">{{ __('sidebar.user_management') }}</span>
             </div>
 
             @php $isUserActive = request()->routeIs('user.*') || request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.rules.*') || request()->routeIs('admin.activity_logs.*') ; @endphp 
@@ -71,7 +74,7 @@
                           <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
                         </svg>
 
-                        <span class="sidebar-text font-medium px-2">Users & Access</span>
+                        <span class="sidebar-text font-medium px-2">{{ __('sidebar.users_access') }}</span>
                     </div>
                     <i class="ri-arrow-down-s-line arrow-icon transition-transform duration-300 {{ $isUserActive ? 'rotate-180' : '' }}"></i>
                 </button>
@@ -85,10 +88,10 @@
                             <li>
                                 <a href="{{ route('user.list') }}" 
                                 class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
-                                        {{ request()->routeIs('user.list') ? 'text-primary font-bold' : 'opacity-80' }}">
+                                            {{ request()->routeIs('user.list') ? 'text-primary font-bold' : 'opacity-80' }}">
                                     <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
                                                 {{ request()->routeIs('user.list') ? 'bg-primary' : 'bg-gray-400' }}"></span>
-                                    <span>User List</span>
+                                    <span>{{ __('sidebar.user_list') }}</span>
                                 </a>
                             </li>
                         @endcan
@@ -98,10 +101,10 @@
                             <li>
                                 <a href="{{ route('admin.roles.index') }}" 
                                 class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
-                                        {{ request()->routeIs('admin.roles.*') ? 'text-primary font-bold' : 'opacity-80' }}">
+                                            {{ request()->routeIs('admin.roles.*') ? 'text-primary font-bold' : 'opacity-80' }}">
                                     <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
                                                 {{ request()->routeIs('admin.roles.*') ? 'bg-primary' : 'bg-gray-400' }}"></span>
-                                    <span>Role & Permission</span>
+                                    <span>{{ __('sidebar.role_permission') }}</span>
                                 </a>
                             </li>
                         @endcan
@@ -111,10 +114,10 @@
                             <li>
                                 <a href="{{ route('admin.permissions.index') }}" 
                                 class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
-                                        {{ request()->routeIs('admin.permissions.*') ? 'text-primary font-bold' : 'opacity-80' }}">
+                                            {{ request()->routeIs('admin.permissions.*') ? 'text-primary font-bold' : 'opacity-80' }}">
                                     <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
                                                 {{ request()->routeIs('admin.permissions.*') ? 'bg-primary' : 'bg-gray-400' }}"></span>
-                                    <span>Permissions List</span>
+                                    <span>{{ __('sidebar.permission_list') }}</span>
                                 </a>
                             </li>
                         @endcan
@@ -125,31 +128,33 @@
                             <li>
                                 <a href="{{ route('admin.rules.index') }}" 
                                 class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
-                                        {{ request()->routeIs('admin.rules.*') ? 'text-primary font-bold' : 'opacity-80' }}">
+                                            {{ request()->routeIs('admin.rules.*') ? 'text-primary font-bold' : 'opacity-80' }}">
                                     <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
                                                 {{ request()->routeIs('admin.rules.*') ? 'bg-primary' : 'bg-gray-400' }}"></span>
-                                    <span>Rule List</span>
+                                    <span>{{ __('sidebar.rule_list') }}</span>
                                 </a>
                             </li>
                         @endcan
 
 
-                        {{-- 4. Permission Assing --}}
+                        {{-- 5. User Activity --}}
                         @can('activity-list')
                             <li>
                                 <a href="{{ route('admin.activity_logs.index') }}" 
                                 class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
-                                        {{ request()->routeIs('admin.activity_logs.*') ? 'text-primary font-bold' : 'opacity-80' }}">
+                                            {{ request()->routeIs('admin.activity_logs.*') ? 'text-primary font-bold' : 'opacity-80' }}">
                                     <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
                                                 {{ request()->routeIs('admin.activity_logs.*') ? 'bg-primary' : 'bg-gray-400' }}"></span>
-                                    <span>User Action</span>
+                                    <span>{{ __('sidebar.user_action') }}</span>
                                 </a>
                             </li>
                         @endcan
 
                     </ul>
                 </div>
-                <div class="tooltip hidden absolute left-[100%] top-2 ml-4 bg-gray-900 text-white text-xs px-3 py-2 rounded shadow-xl z-50 whitespace-nowrap">Users</div>
+                <div class="tooltip hidden absolute left-[100%] top-2 ml-4 bg-gray-900 text-white text-xs px-3 py-2 rounded shadow-xl z-50 whitespace-nowrap">
+                    {{ __('sidebar.users_access') }}
+                </div>
             </div>
         @endif
 
@@ -170,7 +175,7 @@
         @endphp
 
         <div class="px-4 mt-6 mb-2 sidebar-text">
-            <span class="text-[11px] font-bold opacity-50 uppercase tracking-wider">System</span>
+            <span class="text-[11px] font-bold opacity-50 uppercase tracking-wider">{{ __('sidebar.system') }}</span>
         </div>
 
         <div class="group relative">
@@ -185,7 +190,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 0 1 0 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 0 1 0-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281Z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                     </svg>
-                    <span class="sidebar-text font-medium px-2">Settings</span>
+                    <span class="sidebar-text font-medium px-2">{{ __('sidebar.settings') }}</span>
                 </div>
                 <i class="ri-arrow-down-s-line arrow-icon transition-transform duration-300 {{ $isSettingsActive ? 'rotate-180' : '' }}"></i>
             </button>
@@ -206,12 +211,12 @@
                             <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
                                          {{ request()->routeIs('admin.theme') ? 'bg-primary' : 'bg-gray-400' }}"></span>
                             
-                            <span>Theme & Color</span>
+                            <span>{{ __('sidebar.theme_color') }}</span>
                         </a>
                     </li>
                     @endcan
 
-                    {{-- Sub-menu 2: General (ដាក់ជាគំរូសិន) --}}
+                    {{-- Sub-menu 2: General --}}
                     @can('setting-shop_info') {{-- ដាក់ Permission បើមាន --}}
                     <li>
                         <a href="{{ route('admin.shop_info.index') }}" 
@@ -222,7 +227,7 @@
                             <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
                                          {{ request()->routeIs('admin.shop_info.index') ? 'bg-primary' : 'bg-gray-400' }}"></span>
                             
-                            <span>Shop Info</span>
+                            <span>{{ __('sidebar.shop_info') }}</span>
                         </a>
                     </li>
                     @endcan
@@ -232,27 +237,10 @@
             </div>
             
             {{-- Tooltip ពេលបង្រួម Sidebar --}}
-            <div class="tooltip hidden absolute left-[100%] top-2 ml-4 bg-gray-900 text-white text-xs px-3 py-2 rounded shadow-xl z-50 whitespace-nowrap">Settings</div>
+            <div class="tooltip hidden absolute left-[100%] top-2 ml-4 bg-gray-900 text-white text-xs px-3 py-2 rounded shadow-xl z-50 whitespace-nowrap">
+                {{ __('sidebar.settings') }}
+            </div>
         </div>
-
-        
-
-        
-        
-        {{-- @can('theme-color')
-        <div class="group relative">
-            <a href="{{ route('admin.theme') }}" 
-               class="sidebar-item flex items-center px-4 py-3 rounded-xl transition-all duration-200 menu-item-content
-                      {{ request()->routeIs('admin.theme') ? 'btn-primary shadow-lg' : '' }}">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" class="size-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
-                </svg>
-
-                <span class="sidebar-text font-medium px-2">Theme & Color</span>
-            </a>
-            <div class="tooltip hidden absolute left-[100%] top-2 ml-4 bg-gray-900 text-white text-xs px-3 py-2 rounded shadow-xl z-50 whitespace-nowrap">Theme</div>
-        </div>
-        @endcan --}}
 
     </nav>
 
@@ -266,7 +254,7 @@
                 alt="Creator Profile">
             
             <div class="sidebar-text overflow-hidden">
-                <p class="text-sm font-semibold truncate text-text-color">Created By</p>
+                <p class="text-sm font-semibold truncate text-text-color">{{ __('sidebar.created_by') }}</p>
                 <p class="text-xs text-primary truncate font-medium flex items-center gap-1">
                     Kuy Tangkoan
                 </p>
