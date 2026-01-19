@@ -153,7 +153,7 @@
                 </button>
 
                 <button type="button" @click="$store.theme.save()" :disabled="$store.theme.isSaving"
-                    class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold shadow-lg shadow-blue-500/30 flex items-center gap-2 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+                    class="px-6 py-2.5 rounded-xl bg-gradient-to-r btn-primary text-white font-bold shadow-lg shadow-blue-500/30 flex items-center gap-2 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
                     :class="$store.theme.isSaving ? 'scale-100' : 'hover:scale-105 hover:shadow-blue-500/50'">
 
                     <i x-show="!$store.theme.isSaving" class="ri-save-3-fill text-lg"></i>
