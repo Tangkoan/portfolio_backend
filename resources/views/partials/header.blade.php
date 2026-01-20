@@ -1,8 +1,12 @@
 <header 
-    {{-- 1. បន្ថែម languageOpen: false ទៅក្នុង x-data --}}
     x-data="{ userDropdownOpen: false, languageOpen: false }" 
     x-effect="if ($store.theme.darkMode) document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark');"
-    class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 h-16 flex items-center justify-between px-6 shadow-sm z-10 sticky top-0 transition-colors duration-300">
+    {{-- 
+       ចំណុចសំខាន់ដែលកែប្រែ៖
+       1. ប្រើ bg-header-bg (ជំនួសឱ្យ bg-white dark:bg-gray-900) ដើម្បីឱ្យវាចាប់យកពណ៌ពី var(--header-bg)
+       2. ប្រើ border-border-color (ជំនួសឱ្យ border-gray-200) ដើម្បីឱ្យបន្ទាត់បាតចាប់យកពណ៌ពី var(--custom-border) ផងដែរ
+    --}}
+    class="bg-header-bg border-b border-border-color h-16 flex items-center justify-between px-6 shadow-sm z-10 sticky top-0 transition-colors duration-300">
 
     <button id="sidebarToggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors">
         <i class="ri-menu-2-line text-xl"></i>
@@ -19,7 +23,7 @@
             </span>
         </button>
 
-        {{-- 2. ផ្នែក Language Switcher ថ្មី --}}
+        {{-- Language Switcher --}}
         <div class="relative">
             <button @click="languageOpen = !languageOpen" class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors">
                 @if(App::getLocale() == 'km')
@@ -43,14 +47,12 @@
                  class="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-1 border border-gray-100 dark:border-gray-700 z-50 origin-top-right"
                  style="display: none;">
                 
-                {{-- ជម្រើសភាសាខ្មែរ --}}
                 <a href="{{ route('switch.language', 'km') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors {{ App::getLocale() == 'km' ? 'bg-gray-50 dark:bg-gray-700/50 text-blue-600 font-semibold' : '' }}">
                     <img src="https://flagcdn.com/w40/kh.png" alt="Khmer" class="w-5 h-auto rounded-sm shadow-sm">
                     <span>ភាសាខ្មែរ</span>
                     @if(App::getLocale() == 'km') <i class="ri-check-line ml-auto text-blue-600"></i> @endif
                 </a>
 
-                {{-- ជម្រើសភាសាអង់គ្លេស --}}
                 <a href="{{ route('switch.language', 'en') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors {{ App::getLocale() == 'en' ? 'bg-gray-50 dark:bg-gray-700/50 text-blue-600 font-semibold' : '' }}">
                     <img src="https://flagcdn.com/w40/us.png" alt="English" class="w-5 h-auto rounded-sm shadow-sm">
                     <span>English</span>
@@ -98,7 +100,6 @@
                 </div>
 
                 <a href="{{ route('admin.profile') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                    {{-- កុំភ្លេចប្ដូរអក្សរត្រង់នេះទៅជា {{ __('messages.profile') }} --}}
                     <i class="ri-user-line mr-2"></i> {{ __('messages.profile') }}
                 </a>
 
