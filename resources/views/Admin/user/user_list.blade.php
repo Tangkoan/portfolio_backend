@@ -7,11 +7,10 @@
     <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-text-color flex items-center gap-2">
-                {{-- <i class="ri-team-line text-primary"></i> --}}
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
                 </svg>
-                User Management
+                {{ __('messages.user_management') }}
             </h1>
         </div>
 
@@ -19,17 +18,17 @@
             
             <div x-show="selectedIds.length > 0" x-transition.opacity.duration.300ms 
                  class="flex items-center gap-2 mr-2 w-full sm:w-auto justify-between sm:justify-start bg-white dark:bg-gray-800 p-1 rounded-lg border border-border-color shadow-sm">
-                <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-1.5 rounded ml-1" x-text="selectedIds.length + ' selected'"></span>
+                 <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-1.5 rounded ml-1" x-text="selectedIds.length + ' {{ __('messages.selected_items') }}'"></span>
                 
                 <div class="flex gap-1">
                     @can('user-edit')
-                    <button @click="startSequentialEdit()" class="text-sm font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-md transition" title="Edit Sequence">
+                    <button @click="startSequentialEdit()" class="text-sm font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-md transition" title="{{ __('messages.edit_sequence') }}">
                         <i class="ri-edit-circle-line"></i>
                     </button>
                     @endcan
 
                     @can('user-delete')
-                    <button @click="confirmBulkDelete()" class="text-sm font-bold text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-md transition" title="Delete Selected">
+                    <button @click="confirmBulkDelete()" class="text-sm font-bold text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-md transition" title="{{ __('messages.delete_selected') }}">
                         <i class="ri-delete-bin-line"></i>
                     </button>
                     @endcan
@@ -39,21 +38,21 @@
             <div class="relative w-full sm:w-auto" x-data="{ openCol: false }">
                 <button @click="openCol = !openCol" @click.outside="openCol = false" 
                         class="w-full sm:w-auto flex justify-center items-center gap-2 px-3 py-2.5 bg-card-bg border border-input-border rounded-xl text-text-color hover:bg-input-bg transition text-sm font-medium shadow-sm">
-                    <i class="ri-layout-column-line"></i> <span class="sm:hidden lg:inline">Columns</span>
+                    <i class="ri-layout-column-line"></i> <span class="sm:hidden lg:inline">{{ __('messages.columns') }}</span>
                 </button>
                 <div x-show="openCol" class="absolute right-0 mt-2 w-48 bg-card-bg border border-border-color rounded-xl shadow-xl z-50 p-2" style="display: none;" x-transition>
                     <div class="space-y-1">
                         <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-page-bg rounded cursor-pointer select-none">
                             <input type="checkbox" x-model="showCols.role" class="rounded text-primary focus:ring-primary border-input-border">
-                            <span class="text-sm text-text-color">Role</span>
+                            <span class="text-sm text-text-color">{{ __('messages.role') }}</span>
                         </label>
                         <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-page-bg rounded cursor-pointer select-none">
                             <input type="checkbox" x-model="showCols.email" class="rounded text-primary focus:ring-primary border-input-border">
-                            <span class="text-sm text-text-color">Email</span>
+                            <span class="text-sm text-text-color">{{ __('messages.email') }}</span>
                         </label>
                         <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-page-bg rounded cursor-pointer select-none">
                             <input type="checkbox" x-model="showCols.created_at" class="rounded text-primary focus:ring-primary border-input-border">
-                            <span class="text-sm text-text-color">Created At</span>
+                            <span class="text-sm text-text-color">{{ __('messages.created_at') }}</span>
                         </label>
                     </div>
                 </div>
@@ -65,7 +64,7 @@
                 </span>
                 <input type="text" x-model="search" @keyup.debounce.500ms="fetchUsers()"
                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-input-border bg-card-bg text-text-color focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder-secondary text-sm shadow-sm"
-                       placeholder="Search users...">
+                       placeholder="{{ __('messages.search_placeholder') }}">
             </div>
 
             <button 
@@ -74,9 +73,8 @@
                 @can('user-create') bg-primary hover:opacity-90 @else bg-gray-400 cursor-not-allowed opacity-70 @endcan"
                 @cannot('user-create') disabled title="No Permission" @endcannot
             >
-                {{-- <i class="ri-user-add-line"></i>  --}}
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-plus-icon lucide-user-plus"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
-                <span>Add User</span>
+                <span>{{ __('messages.add_user') }}</span>
             </button>
         </div>
     </div>
@@ -88,11 +86,11 @@
                         <th class="px-6 py-4 w-4">
                             <input type="checkbox" @change="toggleSelectAll()" x-model="selectAll" class="rounded border-input-border text-primary focus:ring-primary h-4 w-4">
                         </th>
-                        <th class="px-6 py-4 font-bold">User</th>
-                        <th class="px-6 py-4 font-bold" x-show="showCols.role">Role</th>
-                        <th class="px-6 py-4 font-bold" x-show="showCols.email">Email</th>
-                        <th class="px-6 py-4 font-bold" x-show="showCols.created_at">Created At</th>
-                        <th class="px-6 py-4 font-bold text-right">Actions</th>
+                        <th class="px-6 py-4 font-bold">{{ __('messages.user') }}</th>
+                        <th class="px-6 py-4 font-bold" x-show="showCols.role">{{ __('messages.role') }}</th>
+                        <th class="px-6 py-4 font-bold" x-show="showCols.email">{{ __('messages.email') }}</th>
+                        <th class="px-6 py-4 font-bold" x-show="showCols.created_at">{{ __('messages.created_at') }}</th>
+                        <th class="px-6 py-4 font-bold text-right">{{ __('messages.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border-color">
@@ -136,14 +134,13 @@
                     <tr x-show="users.length === 0">
                         <td colspan="6" class="px-6 py-12 text-center text-secondary">
                             <i class="ri-ghost-line text-4xl mb-2 inline-block"></i>
-                            <p>No users found matching your search.</p>
+                            <p>{{ __('messages.no_users_found_matching_your_search') }}</p>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
         
-        {{-- ហៅប្រើ Component នៅទីនេះ --}}
         <x-pagination />
     </div>
 
@@ -155,10 +152,10 @@
             
             <div class="px-6 py-4 border-b border-border-color flex justify-between items-center" :class="isSequenceMode ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-page-bg/30'">
                 <div>
-                    <h3 class="text-lg font-bold text-text-color" x-text="editMode ? 'Edit User' : 'Create New User'"></h3>
+                    <h3 class="text-lg font-bold text-text-color" x-text="editMode ? '{{ __('messages.edit_user') }}' : '{{ __('messages.create_new_user') }}'"></h3>
                     <template x-if="isSequenceMode">
                         <p class="text-xs text-primary font-bold mt-1">
-                            Editing user <span x-text="currentSeqIndex + 1"></span> of <span x-text="sequenceQueue.length"></span>
+                            {{ __('messages.edit_user') }} <span x-text="currentSeqIndex + 1"></span> {{ __('messages.of') }} <span x-text="sequenceQueue.length"></span>
                         </p>
                     </template>
                 </div>
@@ -167,21 +164,21 @@
             
             <form @submit.prevent="submitForm" class="p-6 space-y-4">
                 <div>
-                    <label class="block text-sm font-bold text-text-color mb-1">Full Name</label>
+                    <label class="block text-sm font-bold text-text-color mb-1">{{ __('messages.full_name') }}</label>
                     <input type="text" x-model="form.name" class="w-full px-4 py-2.5 rounded-lg border border-input-border bg-input-bg text-text-color focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
                     <p x-show="errors.name" x-text="errors.name" class="text-red-500 text-xs mt-1"></p>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-bold text-text-color mb-1">Email Address</label>
+                    <label class="block text-sm font-bold text-text-color mb-1">{{ __('messages.email') }}</label>
                     <input type="email" x-model="form.email" class="w-full px-4 py-2.5 rounded-lg border border-input-border bg-input-bg text-text-color focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
                     <p x-show="errors.email" x-text="errors.email" class="text-red-500 text-xs mt-1"></p>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-bold text-text-color mb-1">Assign Role</label>
+                    <label class="block text-sm font-bold text-text-color mb-1">{{ __('messages.assign_role') }}</label>
                     <select x-model="form.role" class="w-full px-4 py-2.5 rounded-lg border border-input-border bg-input-bg text-text-color focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-                        <option value="" disabled>Select a role</option>
+                        <option value="" disabled>{{ __('messages.select_a_role') }}</option>
                         @foreach($roles as $role)
                             <option value="{{ $role->name }}">{{ $role->name }}</option>
                         @endforeach
@@ -190,20 +187,20 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-bold text-text-color mb-1" x-text="editMode ? 'New Password (Optional)' : 'Password'"></label>
+                    <label class="block text-sm font-bold text-text-color mb-1" x-text="editMode ? '{{ __('messages.new_password_optional') }}' : '{{ __('messages.password') }}'"></label>
                     <input type="password" x-model="form.password" class="w-full px-4 py-2.5 rounded-lg border border-input-border bg-input-bg text-text-color focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
                 </div>
 
                 <div class="pt-4 flex justify-between items-center border-t border-border-color mt-2">
                     <button type="button" x-show="isSequenceMode" @click="nextInSequence()" class="text-secondary hover:text-text-color text-sm font-bold px-2">
-                        Skip this user <i class="ri-arrow-right-line align-middle"></i>
+                        {{ __('messages.skip_this_user') }} <i class="ri-arrow-right-line align-middle"></i>
                     </button>
                     <div x-show="!isSequenceMode"></div> 
                     <div class="flex gap-3">
-                        <button type="button" @click="closeModal(true)" class="px-4 py-2 rounded-lg border border-input-border text-text-color hover:bg-page-bg transition">Cancel</button>
+                        <button type="button" @click="closeModal(true)" class="px-4 py-2 rounded-lg border border-input-border text-text-color hover:bg-page-bg transition">{{ __('messages.cancel') }}</button>
                         <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg hover:opacity-90 transition flex items-center gap-2" :disabled="isLoading">
                             <i x-show="isLoading" class="ri-loader-4-line animate-spin"></i>
-                            <span x-text="isSequenceMode ? (currentSeqIndex + 1 === sequenceQueue.length ? 'Finish' : 'Save & Next') : (editMode ? 'Update' : 'Save')"></span>
+                            <span x-text="isSequenceMode ? (currentSeqIndex + 1 === sequenceQueue.length ? '{{ __('messages.finish') }}' : '{{ __('messages.save_and_next') }}') : (editMode ? '{{ __('messages.update') }}' : '{{ __('messages.save') }}')"></span>
                         </button>
                     </div>
                 </div>
@@ -218,15 +215,12 @@
             users: [],
             search: '',
             perPage: '10',
-            currentPage: 1, // តម្លៃដើម
-            pagination: { last_page: 1, total: 0 }, // តម្លៃដើមការពារ Error
+            currentPage: 1, 
+            pagination: { last_page: 1, total: 0 }, 
             isModalOpen: false,
             editMode: false,
             isLoading: false,
             
-            
-            perPage: '10',
-
             showCols: JSON.parse(localStorage.getItem('user_table_cols')) || { 
                 role: true, 
                 email: true, 
@@ -250,57 +244,47 @@
                 this.fetchUsers();
             },
 
-            
+            async fetchUsers() {
+                let url = "{{ route('admin.users.fetch') }}";
+                const params = new URLSearchParams();
+                
+                if(this.search) params.append('keyword', this.search);
+                params.append('per_page', this.perPage);
+                params.append('page', this.currentPage);
 
-async fetchUsers() {
-            let url = "{{ route('admin.users.fetch') }}";
-            const params = new URLSearchParams();
-            
-            if(this.search) params.append('keyword', this.search);
-            params.append('per_page', this.perPage);
-            
-            // [សំខាន់] បញ្ជូនលេខទំព័រទៅ Server
-            params.append('page', this.currentPage);
+                url = url.split('?')[0] + '?' + params.toString();
 
-            // បង្កើត URL
-            url = url.split('?')[0] + '?' + params.toString();
-
-            this.isLoading = true; // ដាក់ Loading បន្តិចមើលទៅល្អ
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                this.users = data.data;
-                
-                // Update Pagination Data ពី Server
-                this.pagination = {
-                    total: data.total,
-                    from: data.from,
-                    to: data.to,
-                    current_page: data.current_page,
-                    last_page: data.last_page, 
-                    prev_page_url: data.prev_page_url,
-                    next_page_url: data.next_page_url
-                };
-                
-                // ធានាថា currentPage ត្រូវគ្នាជាមួយ Server
-                this.currentPage = data.current_page;
-                
-            } catch (error) { 
-                console.error(error); 
-            } finally {
-                this.isLoading = false;
-            }
-        },
-        // [បន្ថែមថ្មី] Function សម្រាប់ប្ដូរទំព័រ
-        gotoPage(page) {
-            // ការពារកុំឱ្យចុចលើសទំព័រដែលមាន
-            if (page < 1 || (this.pagination.last_page && page > this.pagination.last_page)) return;
+                this.isLoading = true; 
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    
+                    this.users = data.data;
+                    
+                    this.pagination = {
+                        total: data.total,
+                        from: data.from,
+                        to: data.to,
+                        current_page: data.current_page,
+                        last_page: data.last_page, 
+                        prev_page_url: data.prev_page_url,
+                        next_page_url: data.next_page_url
+                    };
+                    
+                    this.currentPage = data.current_page;
+                    
+                } catch (error) { 
+                    console.error(error); 
+                } finally {
+                    this.isLoading = false;
+                }
+            },
             
-            // ដាក់លេខទំព័រថ្មី រួចហៅ API
-            this.currentPage = page;
-            this.fetchUsers(); 
-        },
+            gotoPage(page) {
+                if (page < 1 || (this.pagination.last_page && page > this.pagination.last_page)) return;
+                this.currentPage = page;
+                this.fetchUsers(); 
+            },
 
             changePage(url) { if(url) this.fetchUsers(url); },
 
@@ -315,7 +299,8 @@ async fetchUsers() {
                 );
                 
                 if (this.sequenceQueue.length === 0) {
-                    alert("Please select users first (Error: ID Mismatch)"); 
+                    // កែ alert
+                    alert("{{ __('messages.select_users_first') }}"); 
                     return;
                 }
 
@@ -335,7 +320,8 @@ async fetchUsers() {
                     this.selectedIds = [];
                     this.selectAll = false;
                     this.fetchUsers();
-                    window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: 'All selected users updated!' } }));
+                    // កែ Message
+                    window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: "{{ __('messages.all_users_updated') }}" } }));
                 }
             },
 
@@ -350,7 +336,8 @@ async fetchUsers() {
             },
 
             closeModal(force = false) {
-                if (!force && this.isSequenceMode && !confirm("Stop editing sequence?")) {
+                // កែ confirm message
+                if (!force && this.isSequenceMode && !confirm("{{ __('messages.confirm_stop_sequence') }}")) {
                     return;
                 }
                 this.isModalOpen = false;
@@ -386,17 +373,18 @@ async fetchUsers() {
                     const data = await response.json();
 
                     if (!response.ok) {
-                        // [SECURITY FIX] Handle 403 Forbidden (If admin tries to hack role)
                         if (response.status === 403) {
                             window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: data.message } }));
                             this.closeModal(true);
                         }
                         else if (response.status === 422) {
                             this.errors = data.errors;
-                            window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: 'Please fix the errors below.' } }));
+                            // កែ Message
+                            window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: "{{ __('messages.fix_errors') }}" } }));
                         } 
                         else {
-                            window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: data.message || 'Something went wrong!' } }));
+                            // កែ Message
+                            window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: data.message || "{{ __('messages.something_wrong') }}" } }));
                         }
                     } else {
                         // Success
@@ -446,14 +434,16 @@ async fetchUsers() {
                         this.selectedIds = [];
                         this.selectAll = false;
                         this.fetchUsers();
-                        window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: data.message || 'Deleted successfully' } }));
+                        // កែ Message
+                        window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'success', message: data.message || "{{ __('messages.delete_success') }}" } }));
                     } else {
-                        // [SECURITY FIX] Handle delete errors (e.g., trying to delete Super Admin)
-                        window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: data.message || 'Failed to delete.' } }));
+                        // កែ Message
+                        window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: data.message || "{{ __('messages.delete_fail') }}" } }));
                     }
                 } catch(e) { 
                     console.error(e); 
-                    window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: 'Network Error' } }));
+                    // កែ Message
+                    window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message: "{{ __('messages.network_error') }}" } }));
                 }
             }
         }

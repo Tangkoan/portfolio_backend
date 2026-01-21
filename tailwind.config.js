@@ -10,6 +10,12 @@ export default {
     ],
     theme: {
         extend: {
+            fontFamily: {
+                sans: ['Figtree',],
+                // កែពី Kantumruy Pro ទៅ Nokora
+                khmer: ['"Nokora"', 'sans-serif'],
+                
+            },
             colors: {
                 // ប្រើ rgb(var(...) / <alpha-value>) ដើម្បីឱ្យ Tailwind ស្គាល់ Opacity
                 primary: 'rgb(var(--color-primary) / <alpha-value>)',
@@ -20,7 +26,7 @@ export default {
                 'page-bg': 'rgb(var(--page-bg) / <alpha-value>)',
                 'card-bg': 'rgb(var(--card-bg) / <alpha-value>)',
                 'input-bg': 'rgb(var(--input-bg) / <alpha-value>)',
-                'border-color': 'rgb(var(--custom-border) / <alpha-value>)',
+                'bor-color': 'rgb(var(--custom-border) / <alpha-value>)',
                 // ✅ បន្ថែមថ្មីនៅទីនេះ
                 'input-border': 'rgb(var(--input-border) / <alpha-value>)',
             },

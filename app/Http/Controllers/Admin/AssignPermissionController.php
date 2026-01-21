@@ -52,8 +52,8 @@ class AssignPermissionController extends Controller
     public function fetchRolePermissions($roleId)
     {
         try {
-            $role = Role::findById($roleId);
-            $currentUser = auth::user();
+            $role = Role::findById($roleId); // ឬ Role::findOrFail($roleId) ប្រសិនបើប្រើ custom model ខ្លះ
+            $currentUser = Auth::user();
 
             // ១. យកបញ្ជីសិទ្ធិដែល User បច្ចុប្បន្ន (Admin) អាចមើលឃើញ/អាចចែកចាយបាន
             // (លទ្ធផលនឹងចេញតែ user-create, user-delete... អត់មាន user-edit ទេ)
@@ -74,7 +74,8 @@ class AssignPermissionController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
+            // Logic នៅដដែល គ្រាន់តែប្តូរ Message
+            return response()->json(['message' => __('messages.error_prefix') . $e->getMessage()], 500);
         }
     }
 
@@ -102,7 +103,7 @@ class AssignPermissionController extends Controller
             $illegalPermissions = array_diff($submittedPermissions, $manageablePermissions);
 
             if (!empty($illegalPermissions)) {
-                return response()->json(['message' => 'Security Warning: You tried to assign unauthorized permissions.'], 403);
+                return response()->json(['message' => __('messages.security_warning_unauthorized')], 403);
             }
 
             // ៣. Logic រក្សាសិទ្ធិចាស់ (Preserve Invisible Permissions)
@@ -120,13 +121,11 @@ class AssignPermissionController extends Controller
             // ឃ. Save ចូល Database
             $role->syncPermissions($finalPermissions);
 
-            return response()->json(['message' => 'Permissions updated successfully!']);
+            return response()->json(['message' => __('messages.success_permission_update')]);
 
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return response()->json(['message' => 'Server Error'], 500);
+            return response()->json(['message' => __('messages.server_error')], 500);
         }
     }
-
-    
 }

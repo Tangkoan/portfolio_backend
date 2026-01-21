@@ -12,6 +12,20 @@ use App\Http\Controllers\Admin\RoleAssignmentRuleController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\ShopInfoController;
 
+use Illuminate\Support\Facades\Session;
+
+
+// Route កំណត់ភាសា
+        Route::get('/lang/{locale}', function ($locale) {
+            // កំណត់ភាសាដែលអនុញ្ញាត (English និង Khmer)
+            if (in_array($locale, ['en', 'km'])) {
+                Session::put('locale', $locale);
+            }
+            return redirect()->back(); // ត្រឡប់ទៅទំព័រដើមវិញ
+        })->name('switch.language');
+// End Route កំណត់ភាសា
+
+
 
 /*
 |--------------------------------------------------------------------------
