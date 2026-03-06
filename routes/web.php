@@ -11,6 +11,10 @@ use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleAssignmentRuleController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\ShopInfoController;
+use App\Http\Controllers\Admin\ExperienceController;
+use App\Http\Controllers\Admin\TechnologyController;
+
+
 
 use Illuminate\Support\Facades\Session;
 
@@ -243,18 +247,44 @@ Route::middleware('auth')->group(function () {
         // TECHNOLOGIES CRUD
         // ======================
         // ដាក់ក្នុង prefix('admin') group
-        Route::prefix('portfolio')->group(function () {
-            Route::controller(App\Http\Controllers\Admin\TechnoController::class)->group(function () {
-                Route::get('/technologies', 'index')->name('technologies.index')->middleware('permission:techno-list');
-                Route::get('/technologies/fetch', 'fetch')->name('technologies.fetch')->middleware('permission:techno-list');
-                Route::post('/technologies', 'store')->name('technologies.store')->middleware('permission:techno-create');
-                Route::put('/technologies/{id}', 'update')->name('technologies.update')->middleware('permission:techno-edit');
-                Route::delete('/technologies/{id}', 'destroy')->name('technologies.destroy')->middleware('permission:techno-delete');
-                // បន្ថែមមួយជួរនេះ (ត្រូវប្រាកដថាវាស្ថិតក្នុង controller group របស់ Techno)
-                Route::post('/technologies/bulk-delete', 'bulkDestroy')->name('technologies.bulk_delete');
-            });
+        // Route::prefix('portfolio')->group(function () {
+        //     Route::controller(TechnologyController::class)->group(function () {
+        //         Route::get('/technologies', 'index')->name('technologies.index')->middleware('permission:techno-list');
+        //         Route::get('/technologies/fetch', 'fetch')->name('technologies.fetch')->middleware('permission:techno-list');
+        //         Route::post('/technologies', 'store')->name('technologies.store')->middleware('permission:techno-create');
+        //         Route::put('/technologies/{id}', 'update')->name('technologies.update')->middleware('permission:techno-edit');
+        //         Route::delete('/technologies/{id}', 'destroy')->name('technologies.destroy')->middleware('permission:techno-delete');
+        //         // បន្ថែមមួយជួរនេះ (ត្រូវប្រាកដថាវាស្ថិតក្នុង controller group របស់ Techno)
+        //         Route::post('/technologies/bulk-delete', 'bulkDestroy')->name('technologies.bulk_delete');
+        //     });
+        // });
+
+
+        Route::controller(TechnologyController::class)->group(function () {
+            Route::get('/technologies', 'index')->name('technologies.index')->middleware('permission:technologies-list');
+            Route::get('/technologies/fetch', 'fetch')->name('technologies.fetch')->middleware('permission:technologies-list');
+            
+            Route::post('/technologies', 'store')->name('technologies.store')->middleware('permission:technologies-create');
+            Route::post('/technologies/bulk-delete', 'bulkDelete')->name('technologies.bulk-delete')->middleware('permission:technologies-delete');
+            Route::post('/technologies/bulk-edit', 'bulkEdit')->name('technologies.bulk-edit')->middleware('permission:technologies-edit');
+
+            
+
+            Route::put('/technologies/{id}', 'update')->name('technologies.update')->middleware('permission:technologies-edit');
+            Route::delete('/technologies/{id}', 'destroy')->name('technologies.destroy')->middleware('permission:technologies-delete');
+            
+            Route::post('/technologies/{id}/toggle', 'toggleStatus')->name('technologies.toggle')->middleware('permission:technologies-edit-status');
         });
 
+
+        
+            // Route::get('experiences', [ExperienceController::class, 'index'])->name('experiences.index');
+            // Route::get('experiences/fetch', [ExperienceController::class, 'fetchExperiences'])->name('experiences.fetch');
+            // Route::post('experiences', [ExperienceController::class, 'store'])->name('experiences.store');
+            // Route::post('experiences/{id}', [ExperienceController::class, 'update'])->name('experiences.update');
+            // Route::delete('experiences/{id}', [ExperienceController::class, 'destroy'])->name('experiences.destroy');
+            // Route::post('experiences/bulk-delete', [ExperienceController::class, 'bulkDelete'])->name('experiences.bulk_delete');
+        
         
         
 
