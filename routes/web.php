@@ -15,6 +15,8 @@ use App\Http\Controllers\Admin\ExperienceController;
 use App\Http\Controllers\Admin\TechnologyController;
 use App\Http\Controllers\Admin\ProjectController;
 
+use App\Http\Controllers\Admin\SocialController;
+
 
 
 
@@ -311,6 +313,29 @@ Route::middleware('auth')->group(function () {
             
             Route::post('/projects/{id}/toggle', 'toggleStatus')->name('projects.toggle')->middleware('permission:projects-edit-status');
         });
+        
+
+
+
+        Route::controller(SocialController::class)->group(function () {
+            Route::get('/socials', 'index')->name('socials.index')->middleware('permission:socials-list');
+            Route::get('/socials/fetch', 'fetch')->name('socials.fetch')->middleware('permission:socials-list');
+            
+            Route::post('/socials', 'store')->name('socials.store')->middleware('permission:socials-create');
+            Route::post('/socials/bulk-delete', 'bulkDelete')->name('socials.bulk-delete')->middleware('permission:socials-delete');
+            Route::post('/socials/bulk-edit', 'bulkEdit')->name('socials.bulk-edit')->middleware('permission:socials-edit');
+
+            
+
+            Route::put('/socials/{id}', 'update')->name('socials.update')->middleware('permission:socials-edit');
+            Route::delete('/socials/{id}', 'destroy')->name('socials.destroy')->middleware('permission:socials-delete');
+            
+            Route::post('/socials/{id}/toggle', 'toggleStatus')->name('socials.toggle')->middleware('permission:socials-edit-status');
+        });
+
+
+
+
         
 
     });

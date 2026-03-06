@@ -37,7 +37,7 @@
                 <div class="relative">
                     <input type="password" name="password" id="passwordInput"
                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" 
-                        placeholder="********">
+                        placeholder="********" value="User@123456">
                     
                     <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700">
                         <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
