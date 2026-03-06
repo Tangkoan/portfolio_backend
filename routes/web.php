@@ -239,6 +239,22 @@ Route::middleware('auth')->group(function () {
             });
         });
 
+        // ======================
+        // TECHNOLOGIES CRUD
+        // ======================
+        // ដាក់ក្នុង prefix('admin') group
+        Route::prefix('portfolio')->group(function () {
+            Route::controller(App\Http\Controllers\Admin\TechnoController::class)->group(function () {
+                Route::get('/technologies', 'index')->name('technologies.index')->middleware('permission:techno-list');
+                Route::get('/technologies/fetch', 'fetch')->name('technologies.fetch')->middleware('permission:techno-list');
+                Route::post('/technologies', 'store')->name('technologies.store')->middleware('permission:techno-create');
+                Route::put('/technologies/{id}', 'update')->name('technologies.update')->middleware('permission:techno-edit');
+                Route::delete('/technologies/{id}', 'destroy')->name('technologies.destroy')->middleware('permission:techno-delete');
+                // បន្ថែមមួយជួរនេះ (ត្រូវប្រាកដថាវាស្ថិតក្នុង controller group របស់ Techno)
+                Route::post('/technologies/bulk-delete', 'bulkDestroy')->name('technologies.bulk_delete');
+            });
+        });
+
         
         
 

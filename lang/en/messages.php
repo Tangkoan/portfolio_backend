@@ -283,4 +283,16 @@ return [
     'placeholder_email' => 'Enter email address',
     'saving' => 'Saving...',
     'save_changes' => 'Save Changes',
+
+
+
+
+    'techno_management' => 'Technology Management',
+    'add_techno' => 'Add Technology',
+    'edit_techno' => 'Edit Technology',
+    'techno_name' => 'Technology Name',
+    'techno_created' => 'Technology created successfully.',
+    'techno_updated' => 'Technology updated successfully.',
+    'techno_deleted' => 'Technology deleted successfully.',
+    'image' => 'Image',
 ];
