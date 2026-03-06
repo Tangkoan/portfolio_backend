@@ -13,6 +13,9 @@ use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\ShopInfoController;
 use App\Http\Controllers\Admin\ExperienceController;
 use App\Http\Controllers\Admin\TechnologyController;
+use App\Http\Controllers\Admin\ProjectController;
+
+
 
 
 
@@ -291,6 +294,22 @@ Route::middleware('auth')->group(function () {
             Route::delete('/experiences/{id}', 'destroy')->name('experiences.destroy')->middleware('permission:experiences-delete');
             
             Route::post('/experiences/{id}/toggle', 'toggleStatus')->name('experiences.toggle')->middleware('permission:experiences-edit-status');
+        });
+        
+        Route::controller(ProjectController::class)->group(function () {
+            Route::get('/projects', 'index')->name('projects.index')->middleware('permission:projects-list');
+            Route::get('/projects/fetch', 'fetch')->name('projects.fetch')->middleware('permission:projects-list');
+            
+            Route::post('/projects', 'store')->name('projects.store')->middleware('permission:projects-create');
+            Route::post('/projects/bulk-delete', 'bulkDelete')->name('projects.bulk-delete')->middleware('permission:projects-delete');
+            Route::post('/projects/bulk-edit', 'bulkEdit')->name('projects.bulk-edit')->middleware('permission:projects-edit');
+
+            
+
+            Route::put('/projects/{id}', 'update')->name('projects.update')->middleware('permission:projects-edit');
+            Route::delete('/projects/{id}', 'destroy')->name('projects.destroy')->middleware('permission:projects-delete');
+            
+            Route::post('/projects/{id}/toggle', 'toggleStatus')->name('projects.toggle')->middleware('permission:projects-edit-status');
         });
         
 
