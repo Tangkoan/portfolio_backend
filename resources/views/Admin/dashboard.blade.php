@@ -15,7 +15,7 @@
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('components.toast')
-    @livewireStyles
+   
     
     
     <link href="{{ asset('assets/remixicon/remixicon.css') }}" rel="stylesheet">
@@ -286,6 +286,6 @@
             if(arrow) arrow.classList.toggle('rotate-180');
         }
     </script>
-    @livewireScripts
+    
 </body>
 </html>

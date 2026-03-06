@@ -99,21 +99,12 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ Auth::user()->email }}</p>
                 </div>
 
-<<<<<<< HEAD
                 <a href="{{ route('admin.profile') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                     <i class="ri-user-line mr-2"></i> User Info
                 </a>
 
                 <a href="{{ route('admin.password') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                     <i class="ri-lock-password-line mr-2"></i> Change Password
-=======
-                <a href="{{ route('admin.profile') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                    <i class="ri-user-line mr-2"></i> {{ __('messages.profile') }}
-                </a>
-
-                <a href="{{ route('admin.password') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                    <i class="ri-lock-password-line mr-2"></i> {{ __('messages.change_password') }}
->>>>>>> 2956c0e2c61a118abc73966d84ce4fd6137de49c
                 </a>
 
                 {{-- <form method="POST" action="{{ route('logout') }}">
