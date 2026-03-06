@@ -4,36 +4,33 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Experience;
+use App\Models\Experience; // កុំភ្លេចបង្កើត Model នេះ
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
 
 class ExperienceController extends Controller
 {
     public function index()
     {
-        return view('admin.portfolio.experiences');
+        return view('admin.portfolio.experiences.experiences_list');
     }
 
-    public function fetchExperiences(Request $request)
+    public function fetch(Request $request)
     {
         $query = Experience::query();
 
         if ($request->keyword) {
-            $query->where(function($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->keyword . '%')
+            $query->where('name', 'like', '%' . $request->keyword . '%')
                   ->orWhere('sup_name', 'like', '%' . $request->keyword . '%');
-            });
         }
 
-        $sortBy = $request->input('sort_by', 'start_day');
-        $sortDir = $request->input('sort_dir', 'desc');
+        $allowedSort = ['id', 'name', 'sup_name', 'start_day', 'created_at', 'status'];
+        $sortBy  = in_array($request->sort_by, $allowedSort) ? $request->sort_by : 'created_at';
+        $sortDir = $request->sort_dir === 'asc' ? 'asc' : 'desc';
+
         $query->orderBy($sortBy, $sortDir);
-
         $perPage = $request->input('per_page', 10);
-        $experiences = ($perPage === 'all') ? $query->paginate(999999) : $query->paginate((int)$perPage);
 
-        return response()->json($experiences);
+        return response()->json($query->paginate((int)$perPage));
     }
 
     public function store(Request $request)
@@ -43,47 +40,56 @@ class ExperienceController extends Controller
             'sup_name'  => 'required|string|max:255',
             'start_day' => 'required|date',
             'end_day'   => 'nullable|date|after_or_equal:start_day',
+            'status'    => 'required|boolean'
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['status' => 'error', 'errors' => $validator->errors()], 422);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        return DB::transaction(function () use ($request) {
-            $experience = Experience::create($request->all());
-            return response()->json(['status' => 'success', 'message' => 'Experience created successfully']);
-        });
+        Experience::create($request->only(['name', 'sup_name', 'start_day', 'end_day', 'status']));
+        return response()->json(['message' => 'Experience created successfully']);
     }
 
     public function update(Request $request, $id)
     {
-        $experience = Experience::findOrFail($id);
+        $exp = Experience::findOrFail($id);
         
         $validator = Validator::make($request->all(), [
             'name'      => 'required|string|max:255',
             'sup_name'  => 'required|string|max:255',
             'start_day' => 'required|date',
             'end_day'   => 'nullable|date|after_or_equal:start_day',
+            'status'    => 'required|boolean'
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['status' => 'error', 'errors' => $validator->errors()], 422);
-        }
+        if ($validator->fails()) return response()->json(['errors' => $validator->errors()], 422);
 
-        $experience->update($request->all());
-
-        return response()->json(['status' => 'success', 'message' => 'Experience updated successfully']);
+        $exp->update($request->only(['name', 'sup_name', 'start_day', 'end_day', 'status']));
+        return response()->json(['message' => 'Updated successfully']);
     }
 
     public function destroy($id)
     {
         Experience::findOrFail($id)->delete();
-        return response()->json(['status' => 'success', 'message' => 'Deleted successfully']);
+        return response()->json(['message' => 'Deleted successfully']);
+    }
+
+    public function toggleStatus($id)
+    {
+        $exp = Experience::findOrFail($id);
+        $exp->status = $exp->status ? 0 : 1;
+        $exp->save();
+        return response()->json(['message' => 'Status updated']);
     }
 
     public function bulkDelete(Request $request)
     {
-        Experience::whereIn('id', $request->ids)->delete();
-        return response()->json(['status' => 'success', 'message' => 'Items deleted successfully']);
+        $ids = $request->ids;
+        if(!empty($ids)){
+            Experience::whereIn('id', $ids)->delete();
+            return response()->json(['success' => true, 'message' => 'Selected experiences deleted successfully']);
+        }
+        return response()->json(['success' => false, 'message' => 'No items selected']);
     }
 }

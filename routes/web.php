@@ -277,15 +277,21 @@ Route::middleware('auth')->group(function () {
         });
 
 
-        
-            // Route::get('experiences', [ExperienceController::class, 'index'])->name('experiences.index');
-            // Route::get('experiences/fetch', [ExperienceController::class, 'fetchExperiences'])->name('experiences.fetch');
-            // Route::post('experiences', [ExperienceController::class, 'store'])->name('experiences.store');
-            // Route::post('experiences/{id}', [ExperienceController::class, 'update'])->name('experiences.update');
-            // Route::delete('experiences/{id}', [ExperienceController::class, 'destroy'])->name('experiences.destroy');
-            // Route::post('experiences/bulk-delete', [ExperienceController::class, 'bulkDelete'])->name('experiences.bulk_delete');
-        
-        
+        Route::controller(ExperienceController::class)->group(function () {
+            Route::get('/experiences', 'index')->name('experiences.index')->middleware('permission:experiences-list');
+            Route::get('/experiences/fetch', 'fetch')->name('experiences.fetch')->middleware('permission:experiences-list');
+            
+            Route::post('/experiences', 'store')->name('experiences.store')->middleware('permission:experiences-create');
+            Route::post('/experiences/bulk-delete', 'bulkDelete')->name('experiences.bulk-delete')->middleware('permission:experiences-delete');
+            Route::post('/experiences/bulk-edit', 'bulkEdit')->name('experiences.bulk-edit')->middleware('permission:experiences-edit');
+
+            
+
+            Route::put('/experiences/{id}', 'update')->name('experiences.update')->middleware('permission:experiences-edit');
+            Route::delete('/experiences/{id}', 'destroy')->name('experiences.destroy')->middleware('permission:experiences-delete');
+            
+            Route::post('/experiences/{id}/toggle', 'toggleStatus')->name('experiences.toggle')->middleware('permission:experiences-edit-status');
+        });
         
 
     });
