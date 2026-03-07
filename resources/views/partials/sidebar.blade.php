@@ -242,6 +242,100 @@
             </div>
         </div>
 
+
+
+
+        {{-- ============================================= --}}
+        {{--                 PORTFOLIO SECTION               --}}
+        {{-- ============================================= --}}
+        @canany(['projects-list', 'technologies-list', 'experiences-list', 'socials-list'])
+        
+        @php 
+            // បានបន្ថែមពាក្យ 'admin.' ពីមុខគ្រប់ routeIs ទាំងអស់
+            $isPortfolioActive = request()->routeIs('admin.projects.*') || 
+                                 request()->routeIs('admin.technologies.*') || 
+                                 request()->routeIs('admin.experiences.*') || 
+                                 request()->routeIs('admin.socials.*'); 
+        @endphp
+
+        <div class="px-4 mt-6 mb-2 sidebar-text">
+            <span class="text-[11px] font-bold opacity-50 uppercase tracking-wider">{{ __('sidebar.portfolio') ?? 'PORTFOLIO' }}</span>
+        </div>
+
+        <div class="group relative">
+            <button onclick="toggleSubmenu(this)" 
+                    class="sidebar-item w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer select-none menu-item-content
+                           {{ $isPortfolioActive ? 'bg-black/5 dark:bg-white/10' : '' }}">
+                
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+                    </svg>
+                    <span class="sidebar-text font-medium px-2">{{ __('sidebar.portfolio') ?? 'Portfolio' }}</span>
+                </div>
+                <i class="ri-arrow-down-s-line arrow-icon transition-transform duration-300 {{ $isPortfolioActive ? 'rotate-180' : '' }}"></i>
+            </button>
+
+            <div class="submenu {{ $isPortfolioActive ? '' : 'hidden' }} transition-all duration-300">
+                <div class="tree-line absolute left-[26px] top-0 bottom-2 w-px bg-custom-border opacity-50"></div>
+                <ul class="space-y-1 mt-1">
+                    
+                    @can('projects-list')
+                    <li>
+                        {{-- បានបន្ថែមពាក្យ 'admin.' ក្នុង route() និង routeIs() --}}
+                        <a href="{{ route('admin.projects.index') }}" 
+                           class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
+                                  {{ request()->routeIs('admin.projects.*') ? 'text-primary font-bold' : 'opacity-80' }}">
+                            <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
+                                         {{ request()->routeIs('admin.projects.*') ? 'bg-primary' : 'bg-gray-400' }}"></span>
+                            <span>{{ __('sidebar.projects') ?? 'Projects' }}</span>
+                        </a>
+                    </li>
+                    @endcan
+
+                    @can('technologies-list')
+                    <li>
+                        <a href="{{ route('admin.technologies.index') }}" 
+                           class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
+                                  {{ request()->routeIs('admin.technologies.*') ? 'text-primary font-bold' : 'opacity-80' }}">
+                            <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
+                                         {{ request()->routeIs('admin.technologies.*') ? 'bg-primary' : 'bg-gray-400' }}"></span>
+                            <span>{{ __('sidebar.technologies') ?? 'Technologies' }}</span>
+                        </a>
+                    </li>
+                    @endcan
+
+                    @can('experiences-list')
+                    <li>
+                        <a href="{{ route('admin.experiences.index') }}" 
+                           class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
+                                  {{ request()->routeIs('admin.experiences.*') ? 'text-primary font-bold' : 'opacity-80' }}">
+                            <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
+                                         {{ request()->routeIs('admin.experiences.*') ? 'bg-primary' : 'bg-gray-400' }}"></span>
+                            <span>{{ __('sidebar.experiences') ?? 'Experiences' }}</span>
+                        </a>
+                    </li>
+                    @endcan
+
+                    @can('socials-list')
+                    <li>
+                        <a href="{{ route('admin.socials.index') }}" 
+                           class="sidebar-item relative flex items-center py-2.5 rounded-lg text-sm transition-all duration-200 pl-12 pr-4
+                                  {{ request()->routeIs('admin.socials.*') ? 'text-primary font-bold' : 'opacity-80' }}">
+                            <span class="tree-line absolute left-[22px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-sidebar-bg 
+                                         {{ request()->routeIs('admin.socials.*') ? 'bg-primary' : 'bg-gray-400' }}"></span>
+                            <span>{{ __('sidebar.socials') ?? 'Social Links' }}</span>
+                        </a>
+                    </li>
+                    @endcan
+
+                </ul>
+            </div>
+            <div class="tooltip hidden absolute left-[100%] top-2 ml-4 bg-gray-900 text-white text-xs px-3 py-2 rounded shadow-xl z-50 whitespace-nowrap">
+                {{ __('sidebar.portfolio') ?? 'Portfolio' }}
+            </div>
+        </div>
+        @endcanany
         
 
         
