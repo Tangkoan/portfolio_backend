@@ -16,6 +16,8 @@ use App\Http\Controllers\Admin\TechnologyController;
 use App\Http\Controllers\Admin\ProjectController;
 
 use App\Http\Controllers\Admin\SocialController;
+use App\Http\Controllers\Admin\ToolController;
+
 
 
 
@@ -331,6 +333,20 @@ Route::middleware('auth')->group(function () {
             Route::delete('/socials/{id}', 'destroy')->name('socials.destroy')->middleware('permission:socials-delete');
             
             Route::post('/socials/{id}/toggle', 'toggleStatus')->name('socials.toggle')->middleware('permission:socials-edit-status');
+        });
+
+        Route::controller(ToolController::class)->group(function () {
+            Route::get('/tools', 'index')->name('tools.index')->middleware('permission:tools-list');
+            Route::get('/tools/fetch', 'fetch')->name('tools.fetch')->middleware('permission:tools-list');
+            
+            Route::post('/tools', 'store')->name('tools.store')->middleware('permission:tools-create');
+            Route::post('/tools/bulk-delete', 'bulkDelete')->name('tools.bulk-delete')->middleware('permission:tools-delete');
+            Route::post('/tools/bulk-edit', 'bulkEdit')->name('tools.bulk-edit')->middleware('permission:tools-edit');
+
+            Route::put('/tools/{id}', 'update')->name('tools.update')->middleware('permission:tools-edit');
+            Route::delete('/tools/{id}', 'destroy')->name('tools.destroy')->middleware('permission:tools-delete');
+            
+            Route::post('/tools/{id}/toggle', 'toggleStatus')->name('tools.toggle')->middleware('permission:tools-edit-status');
         });
 
 
