@@ -17,6 +17,9 @@ use App\Http\Controllers\Admin\ProjectController;
 
 use App\Http\Controllers\Admin\SocialController;
 use App\Http\Controllers\Admin\ToolController;
+use App\Http\Controllers\Admin\AboutMeController;
+
+
 
 
 
@@ -350,6 +353,18 @@ Route::middleware('auth')->group(function () {
         });
 
 
+        Route::controller(AboutMeController::class)->group(function () {
+            Route::get('/about-me', 'index')->name('about_me.index')->middleware('permission:about_me-list');
+            Route::get('/about-me/fetch', 'fetch')->name('about_me.fetch')->middleware('permission:about_me-list');
+            
+            Route::post('/about-me', 'store')->name('about_me.store')->middleware('permission:about_me-create');
+            Route::post('/about-me/bulk-delete', 'bulkDelete')->name('about_me.bulk-delete')->middleware('permission:about_me-delete');
+
+            Route::put('/about-me/{id}', 'update')->name('about_me.update')->middleware('permission:about_me-edit');
+            Route::delete('/about-me/{id}', 'destroy')->name('about_me.destroy')->middleware('permission:about_me-delete');
+            
+            Route::post('/about-me/{id}/toggle', 'toggleStatus')->name('about_me.toggle')->middleware('permission:about_me-edit-status');
+        });
 
 
         
