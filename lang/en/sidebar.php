@@ -29,4 +29,10 @@ return [
 
     // ផ្នែកខាងក្រោម
     'created_by'        => 'Created By',
+
+    'certificates'        => 'Certificates',
+    'tools'        => 'Tools',
+    'about_me'        => 'About Me',
+
+    
 ];

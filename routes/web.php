@@ -14,19 +14,23 @@ use App\Http\Controllers\Admin\ShopInfoController;
 use App\Http\Controllers\Admin\ExperienceController;
 use App\Http\Controllers\Admin\TechnologyController;
 use App\Http\Controllers\Admin\ProjectController;
-
 use App\Http\Controllers\Admin\SocialController;
 use App\Http\Controllers\Admin\ToolController;
 use App\Http\Controllers\Admin\AboutMeController;
+use App\Http\Controllers\Admin\CertificateController;
 
 
 
-
+use App\Http\Controllers\Frontend\PortfolioController;
 
 
 
 
 use Illuminate\Support\Facades\Session;
+
+
+Route::get('/kuytangkoan', [PortfolioController::class, 'index'])->name('portfolio.home');
+
 
 
 // Route កំណត់ភាសា
@@ -253,21 +257,7 @@ Route::middleware('auth')->group(function () {
             });
         });
 
-        // ======================
-        // TECHNOLOGIES CRUD
-        // ======================
-        // ដាក់ក្នុង prefix('admin') group
-        // Route::prefix('portfolio')->group(function () {
-        //     Route::controller(TechnologyController::class)->group(function () {
-        //         Route::get('/technologies', 'index')->name('technologies.index')->middleware('permission:techno-list');
-        //         Route::get('/technologies/fetch', 'fetch')->name('technologies.fetch')->middleware('permission:techno-list');
-        //         Route::post('/technologies', 'store')->name('technologies.store')->middleware('permission:techno-create');
-        //         Route::put('/technologies/{id}', 'update')->name('technologies.update')->middleware('permission:techno-edit');
-        //         Route::delete('/technologies/{id}', 'destroy')->name('technologies.destroy')->middleware('permission:techno-delete');
-        //         // បន្ថែមមួយជួរនេះ (ត្រូវប្រាកដថាវាស្ថិតក្នុង controller group របស់ Techno)
-        //         Route::post('/technologies/bulk-delete', 'bulkDestroy')->name('technologies.bulk_delete');
-        //     });
-        // });
+        
 
 
         Route::controller(TechnologyController::class)->group(function () {
@@ -367,6 +357,18 @@ Route::middleware('auth')->group(function () {
         });
 
 
+        Route::controller(CertificateController::class)->group(function () {
+            Route::get('/certificates', 'index')->name('certificates.index')->middleware('permission:certificates-list');
+            Route::get('/certificates/fetch', 'fetch')->name('certificates.fetch')->middleware('permission:certificates-list');
+            
+            Route::post('/certificates', 'store')->name('certificates.store')->middleware('permission:certificates-create');
+            Route::post('/certificates/bulk-delete', 'bulkDelete')->name('certificates.bulk-delete')->middleware('permission:certificates-delete');
+
+            Route::put('/certificates/{id}', 'update')->name('certificates.update')->middleware('permission:certificates-edit');
+            Route::delete('/certificates/{id}', 'destroy')->name('certificates.destroy')->middleware('permission:certificates-delete');
+            
+            Route::post('/certificates/{id}/toggle', 'toggleStatus')->name('certificates.toggle')->middleware('permission:certificates-edit-status');
+        });
         
 
     });
