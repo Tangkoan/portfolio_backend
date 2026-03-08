@@ -302,6 +302,45 @@ return [
     'shop_info' => "ព័ត៌មានហាង",
     'technologies_management' => "Technologies Management",
 
+    'select_all'=> 'ជ្រើសរើសទាំងអស់',
+    'items'=> 'items',
+    'status_active'=> 'ដំណើរការ',
+
+    'project_management' => 'គ្រប់គ្រងគម្រោង',
+    'add_project' => 'បន្ថែមគម្រោង',
+    'search_project' => 'ស្វែងរកគម្រោងតាមឈ្មោះ...',
+    'columns' => 'ជួរឈរ',
+    'image' => 'រូបភាព',
+    'subtitle' => 'ចំណងជើងរង',
+    'project_url' => 'តំណភ្ជាប់គម្រោង',
+    'status' => 'ស្ថានភាព',
+    'selected' => 'បានជ្រើសរើស',
+    'select_all' => 'ជ្រើសរើសទាំងអស់',
+    'items' => 'ទិន្នន័យ',
+    'visit_project' => 'ចូលមើលគម្រោង',
+    'visit' => 'ចូលមើល',
+    'status_active' => 'សកម្ម',
+    'status_inactive' => 'អសកម្ម',
+    'no_projects_found' => 'មិនមានគម្រោងបង្ហាញទេ',
+    'project_name' => 'ឈ្មោះគម្រោង',
+    'actions' => 'សកម្មភាព',
+
+    'technology_management' => 'គ្រប់គ្រងបច្ចេកវិទ្យា',
+    'add_technology' => 'បន្ថែមបច្ចេកវិទ្យា',
+    'search_technology' => 'ស្វែងរកបច្ចេកវិទ្យា...',
+    'edit_technology' => 'កែប្រែបច្ចេកវិទ្យា',
+    'create_technology' => 'បង្កើតបច្ចេកវិទ្យាថ្មី',
+    'technology_name' => 'ឈ្មោះបច្ចេកវិទ្យា',
+    'no_technologies_found' => 'មិនមានបច្ចេកវិទ្យាបង្ហាញទេ',
+    'btn_skip' => 'រំលង',
+    'btn_cancel' => 'បោះបង់',
+    'btn_saving' => 'កំពុងរក្សាទុក...',
+    'btn_save' => 'រក្សាទុក',
+    'update' => 'កែប្រែ',
+    'save' => 'រក្សាទុក',
+
+
+
 
 
 

@@ -3,9 +3,16 @@
         <i class="ri-user-smile-line"></i> About Me
     </h1>
     <div class="hidden md:flex items-center gap-2">
-        <button @click="openModal('create')" class="btn-primary flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-primary/30 hover:opacity-90">
-            <i class="ri-add-circle-line text-xl"></i><span>Add Profile</span>
-        </button>
+        {{-- ប៊ូតុង Add សម្រាប់ Desktop (ការពារដោយ about_me-create) --}}
+        @can('about_me-create')
+            <button @click="openModal('create')" class="btn-primary flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-primary/30 hover:opacity-90">
+                <i class="ri-add-circle-line text-xl"></i><span>Add Profile</span>
+            </button>
+        @else
+            <button disabled class="btn-primary flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold opacity-50 cursor-not-allowed">
+                <i class="ri-add-circle-line text-xl"></i><span>Add Profile</span>
+            </button>
+        @endcan
     </div>
 </div>
 
@@ -22,7 +29,7 @@
             <i class="ri-layout-column-line text-lg"></i><span class="hidden md:inline ml-1">Columns</span>
         </button>
 
-        <div x-show="openCol" x-transition class="absolute right-0 mt-2 w-44 bg-card-bg border border-border-color rounded-xl shadow-xl z-50 p-2">
+        <div x-show="openCol" x-transition class="absolute right-0 mt-2 w-44 bg-card-bg border border-border-color rounded-xl shadow-xl z-50 p-2" style="display: none;">
             <div class="space-y-1">
                 <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-page-bg rounded cursor-pointer">
                     <input type="checkbox" x-model="showCols.image" class="rounded border-input-border text-primary focus:ring-primary"><span class="text-sm text-text-color">Image</span>
@@ -38,16 +45,45 @@
     </div>
 
     <div class="flex md:hidden">
-        <button @click="openModal('create')" class="w-full flex items-center justify-center gap-2 bg-primary text-white py-2.5 px-6 rounded-xl font-bold shadow-lg shadow-primary/30">
-            <i class="ri-add-circle-line text-xl"></i><span>Add Profile</span>
-        </button>
+        {{-- ប៊ូតុង Add សម្រាប់ Mobile (ការពារដោយ about_me-create) --}}
+        @can('about_me-create')
+            <button @click="openModal('create')" class="w-full flex items-center justify-center gap-2 bg-primary text-white py-2.5 px-6 rounded-xl font-bold shadow-lg shadow-primary/30">
+                <i class="ri-add-circle-line text-xl"></i><span>Add Profile</span>
+            </button>
+        @else
+            <button disabled class="w-full flex items-center justify-center gap-2 bg-primary text-white py-2.5 px-6 rounded-xl font-bold opacity-50 cursor-not-allowed">
+                <i class="ri-add-circle-line text-xl"></i><span>Add Profile</span>
+            </button>
+        @endcan
     </div>
 
-    <div x-show="selectedIds.length > 0" x-transition class="flex items-center justify-between gap-2 w-full md:w-auto bg-primary/10 border border-primary/20 p-2 rounded-xl">
+    {{-- ផ្ទាំង Action សម្រាប់ Item ដែលបាន Select --}}
+    <div x-show="selectedIds.length > 0" x-transition class="flex items-center justify-between gap-2 w-full md:w-auto bg-primary/10 border border-primary/20 p-2 rounded-xl" style="display: none;">
         <span class="text-xs font-bold text-primary px-2"><span x-text="selectedIds.length"></span> Selected</span>
         <div class="flex gap-1">
-            <button @click="startSequentialEdit()" class="h-8 w-8 flex items-center justify-center rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200"><i class="ri-edit-circle-line"></i></button>
-            <button @click="openDeleteModal('bulk')" class="h-8 w-8 flex items-center justify-center rounded-lg bg-red-100 text-red-600 hover:bg-red-200"><i class="ri-delete-bin-line"></i></button>
+            
+            {{-- ប៊ូតុង Edit ច្រើន (ការពារដោយ about_me-edit) --}}
+            @can('about_me-edit')
+                <button @click="startSequentialEdit()" class="h-8 w-8 flex items-center justify-center rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200">
+                    <i class="ri-edit-circle-line"></i>
+                </button>
+            @else
+                <button disabled class="h-8 w-8 flex items-center justify-center rounded-lg bg-blue-100 text-blue-600 opacity-50 cursor-not-allowed">
+                    <i class="ri-edit-circle-line"></i>
+                </button>
+            @endcan
+
+            {{-- ប៊ូតុង Delete ច្រើន (ការពារដោយ about_me-delete) --}}
+            @can('about_me-delete')
+                <button @click="openDeleteModal('bulk')" class="h-8 w-8 flex items-center justify-center rounded-lg bg-red-100 text-red-600 hover:bg-red-200">
+                    <i class="ri-delete-bin-line"></i>
+                </button>
+            @else
+                <button disabled class="h-8 w-8 flex items-center justify-center rounded-lg bg-red-100 text-red-600 opacity-50 cursor-not-allowed">
+                    <i class="ri-delete-bin-line"></i>
+                </button>
+            @endcan
+
         </div>
     </div>
 </div>

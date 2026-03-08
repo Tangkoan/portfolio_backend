@@ -5,7 +5,7 @@
                 <tr class="bg-page-bg/50 border-b border-border-color text-text-color text-sm uppercase tracking-wider">
                     <th class="px-6 py-4 w-4"><input type="checkbox" @change="toggleSelectAll()" x-model="selectAll" class="rounded border-input-border text-primary focus:ring-primary h-4 w-4"></th>
                     <th class="px-6 py-4 font-bold w-20" x-show="showCols.image">Image</th>
-                    <th class="px-6 py-4 font-bold w-48 cursor-pointer hover:text-primary transition-colors" @click="sort('name')">
+                    <th class="px-6 py-4 font-bold w-48 cursor-pointer hover:text-primary transition-colors select-none" @click="sort('name')">
                         <div class="flex items-center gap-1">Name <span x-show="sortBy === 'name'" class="text-primary"><i x-show="sortDir === 'asc'" class="ri-arrow-up-line"></i><i x-show="sortDir === 'desc'" class="ri-arrow-down-line"></i></span></div>
                     </th>
                     <th class="px-6 py-4 font-bold" x-show="showCols.description">Description</th>
@@ -31,21 +31,57 @@
                             <div class="line-clamp-2 max-w-md" x-text="item.description || '-'"></div>
                         </td>
 
+                        {{-- ប៊ូតុង Status --}}
                         <td class="px-6 py-4 text-center" x-show="showCols.status">
-                            <button @click="toggleStatus(item.id)" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors" :class="item.status ? 'bg-green-500' : 'bg-gray-300'">
+                            <button 
+                                type="button" 
+                                @can('about_me-edit-status')
+                                    @click="toggleStatus(item.id)"
+                                @else
+                                    disabled
+                                @endcan
+                                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed" 
+                                :class="item.status ? 'bg-green-500' : 'bg-gray-300'"
+                            >
                                 <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform" :class="item.status ? 'translate-x-6' : 'translate-x-1'"></span>
                             </button>
                         </td>
 
+                        {{-- ប៊ូតុង Edit និង Delete --}}
                         <td class="px-6 py-4 text-right">
                             <div class="flex justify-end gap-2">
-                                <button @click="openModal('edit', item)" class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors bg-blue-50 text-blue-600 hover:bg-blue-100"><i class="ri-pencil-line"></i></button>
-                                <button @click="openDeleteModal('single', item.id)" class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors bg-red-50 text-red-600 hover:bg-red-100"><i class="ri-delete-bin-line"></i></button>
+                                
+                                {{-- ប៊ូតុង Edit --}}
+                                <button 
+                                    type="button" 
+                                    @can('about_me-edit')
+                                        @click="openModal('edit', item)"
+                                    @else
+                                        disabled
+                                    @endcan
+                                    class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors bg-blue-50 text-blue-600 hover:bg-blue-100 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-50"
+                                >
+                                    <i class="ri-pencil-line"></i>
+                                </button>
+                                
+                                {{-- ប៊ូតុង Delete --}}
+                                <button 
+                                    type="button" 
+                                    @can('about_me-delete')
+                                        @click="openDeleteModal('single', item.id)"
+                                    @else
+                                        disabled
+                                    @endcan
+                                    class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors bg-red-50 text-red-600 hover:bg-red-100 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-red-50"
+                                >
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+
                             </div>
                         </td>
                     </tr>
                 </template>
-                <tr x-show="items.length === 0">
+                <tr x-show="items?.length === 0" x-cloak>
                     <td colspan="6" class="px-6 py-12 text-center text-secondary"><i class="ri-user-smile-line text-4xl mb-2 inline-block"></i><p>No profiles found</p></td>
                 </tr>
             </tbody>

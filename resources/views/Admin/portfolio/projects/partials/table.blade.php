@@ -3,21 +3,34 @@
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-page-bg/50 border-b border-border-color text-text-color text-sm uppercase tracking-wider">
-                    <th class="px-6 py-4 w-4"><input type="checkbox" @change="toggleSelectAll()" x-model="selectAll" class="rounded border-input-border text-primary focus:ring-primary h-4 w-4"></th>
-                    <th class="px-6 py-4 font-bold" x-show="showCols.image">Image</th>
-                    <th class="px-6 py-4 font-bold cursor-pointer hover:text-primary transition-colors" @click="sort('name')">
-                        <div class="flex items-center gap-1">Project Name <span x-show="sortBy === 'name'" class="text-primary"><i x-show="sortDir === 'asc'" class="ri-arrow-up-line"></i><i x-show="sortDir === 'desc'" class="ri-arrow-down-line"></i></span></div>
+                    <th class="px-6 py-4 w-4">
+                        <input type="checkbox" @change="toggleSelectAll()" x-model="selectAll" 
+                            @cannot('projects-delete') disabled @endcannot
+                            class="rounded border-input-border text-primary focus:ring-primary h-4 w-4 disabled:opacity-50 disabled:cursor-not-allowed">
                     </th>
-                    <th class="px-6 py-4 font-bold" x-show="showCols.subtitle">Subtitle</th>
-                    <th class="px-6 py-4 font-bold" x-show="showCols.link">Link</th>
-                    <th class="px-6 py-4 font-bold" x-show="showCols.status">Status</th>
-                    <th class="px-6 py-4 font-bold text-right">Actions</th>
+                    <th class="px-6 py-4 font-bold" x-show="showCols.image">{{ __('messages.image') }}</th>
+                    <th class="px-6 py-4 font-bold cursor-pointer hover:text-primary transition-colors select-none" @click="sort('name')">
+                        <div class="flex items-center gap-1">{{ __('messages.project_name') }} 
+                            <span x-show="sortBy === 'name'" class="text-primary" x-cloak>
+                                <i x-show="sortDir === 'asc'" class="ri-arrow-up-line"></i>
+                                <i x-show="sortDir === 'desc'" class="ri-arrow-down-line"></i>
+                            </span>
+                        </div>
+                    </th>
+                    <th class="px-6 py-4 font-bold" x-show="showCols.subtitle">{{ __('messages.subtitle') }}</th>
+                    <th class="px-6 py-4 font-bold" x-show="showCols.link">{{ __('messages.project_url') }}</th>
+                    <th class="px-6 py-4 font-bold" x-show="showCols.status">{{ __('messages.status') }}</th>
+                    <th class="px-6 py-4 font-bold text-right">{{ __('messages.actions') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-border-color">
                 <template x-for="item in projects" :key="item.id">
                     <tr class="hover:bg-page-bg/30 transition-colors">
-                        <td class="px-6 py-4"><input type="checkbox" :value="item.id" x-model="selectedIds" class="rounded border-input-border text-primary focus:ring-primary h-4 w-4"></td>
+                        <td class="px-6 py-4">
+                            <input type="checkbox" :value="item.id" x-model="selectedIds" 
+                                @cannot('projects-delete') disabled @endcannot
+                                class="rounded border-input-border text-primary focus:ring-primary h-4 w-4 disabled:opacity-50 disabled:cursor-not-allowed">
+                        </td>
                         
                         <td class="px-6 py-4" x-show="showCols.image">
                             <div class="h-12 w-16 rounded-lg bg-gray-100 overflow-hidden border border-border-color">
@@ -31,27 +44,58 @@
                         
                         <td class="px-6 py-4" x-show="showCols.link">
                             <template x-if="item.url_project">
-                                <a :href="item.url_project" target="_blank" class="text-blue-500 hover:text-blue-700 hover:underline flex items-center gap-1 text-sm"><i class="ri-external-link-line"></i> Visit</a>
+                                <a :href="item.url_project" target="_blank" class="text-blue-500 hover:text-blue-700 hover:underline flex items-center gap-1 text-sm">
+                                    <i class="ri-external-link-line"></i> {{ __('messages.visit') }}
+                                </a>
                             </template>
                             <template x-if="!item.url_project"><span class="text-secondary text-sm">-</span></template>
                         </td>
 
                         <td class="px-6 py-4" x-show="showCols.status">
-                            <button @click="toggleStatus(item.id)" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors" :class="item.status ? 'bg-green-500' : 'bg-gray-300'">
+                            <button 
+                                type="button" 
+                                @can('projects-edit-status')
+                                    @click="toggleStatus(item.id)"
+                                @else
+                                    disabled
+                                @endcan
+                                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed" 
+                                :class="item.status ? 'bg-green-500' : 'bg-gray-300'"
+                            >
                                 <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform" :class="item.status ? 'translate-x-6' : 'translate-x-1'"></span>
                             </button>
                         </td>
 
                         <td class="px-6 py-4 text-right">
                             <div class="flex justify-end gap-2">
-                                <button @click="openModal('edit', item)" class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors bg-blue-50 text-blue-600 hover:bg-blue-100"><i class="ri-pencil-line"></i></button>
-                                <button @click="openDeleteModal('single', item.id)" class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors bg-red-50 text-red-600 hover:bg-red-100"><i class="ri-delete-bin-line"></i></button>
+                                <button 
+                                    type="button" 
+                                    @can('projects-edit')
+                                        @click="openModal('edit', item)"
+                                    @else
+                                        disabled
+                                    @endcan
+                                    class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors bg-blue-50 text-blue-600 hover:bg-blue-100 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-50"
+                                >
+                                    <i class="ri-pencil-line"></i>
+                                </button>
+                                <button 
+                                    type="button" 
+                                    @can('projects-delete')
+                                        @click="openDeleteModal('single', item.id)"
+                                    @else
+                                        disabled
+                                    @endcan
+                                    class="h-8 w-8 rounded-lg flex items-center justify-center transition-colors bg-red-50 text-red-600 hover:bg-red-100 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-red-50"
+                                >
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
                 </template>
-                <tr x-show="projects.length === 0">
-                    <td colspan="7" class="px-6 py-12 text-center text-secondary"><i class="ri-macbook-line text-4xl mb-2 inline-block"></i><p>No projects found</p></td>
+                <tr x-show="projects?.length === 0" x-cloak>
+                    <td colspan="7" class="px-6 py-12 text-center text-secondary"><i class="ri-macbook-line text-4xl mb-2 inline-block"></i><p>{{ __('messages.no_projects_found') }}</p></td>
                 </tr>
             </tbody>
         </table>

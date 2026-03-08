@@ -302,4 +302,43 @@ return [
     'shop_info' => "Shop Info",
     'technologies_management' => "Technologies Management",
 
+    'select_all'=> 'Select All',
+    'items'=> 'items',
+    'status_active'=> 'Status Active',
+
+    'project_management' => 'Project Management',
+    'add_project' => 'Add Project',
+    'search_project' => 'Search project by name...',
+    'columns' => 'Columns',
+    'image' => 'Image',
+    'subtitle' => 'Subtitle',
+    'project_url' => 'Project URL',
+    'status' => 'Status',
+    'selected' => 'Selected',
+    'select_all' => 'Select All',
+    'items' => 'Items',
+    'visit_project' => 'Visit Project',
+    'visit' => 'Visit',
+    'status_active' => 'Active',
+    'status_inactive' => 'Inactive',
+    'no_projects_found' => 'No projects found',
+    'project_name' => 'Project Name',
+    'actions' => 'Actions',
+
+    'technology_management' => 'Technology Management',
+    'add_technology' => 'Add Technology',
+    'search_technology' => 'Search technology...',
+    'edit_technology' => 'Edit Technology',
+    'create_technology' => 'Create Technology',
+    'technology_name' => 'Technology Name',
+    'no_technologies_found' => 'No technologies found',
+    'btn_skip' => 'Skip',
+    'btn_cancel' => 'Cancel',
+    'btn_saving' => 'Saving...',
+    'btn_save' => 'Save',
+    'update' => 'Update',
+    'save' => 'Save',
+
+
+
 ];
