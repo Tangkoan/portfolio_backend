@@ -339,6 +339,29 @@ return [
     'update' => 'Update',
     'save' => 'Save',
 
+    'tools_management' => 'Tools Management',
+    'add_tool' => 'Add Tool',
+    'search_tool' => 'Search tool by name...',
+    'edit_tool' => 'Edit Tool',
+    'create_tool' => 'Create Tool',
+    'tool_name' => 'Tool Name',
+    'tool_image' => 'Tool Image (Icon/Logo)',
+    'no_tools_found' => 'No tools found',
+
+    'experience_management' => 'Experience Management',
+    'add_experience' => 'Add Experience',
+    'search_experience' => 'Search experience by position or company...',
+    'edit_experience' => 'Edit Experience',
+    'create_experience' => 'Create Experience',
+    'position' => 'Position / Job Title',
+    'company' => 'Company Name',
+    'start_date' => 'Start Date',
+    'end_date' => 'End Date',
+    'duration' => 'Duration',
+    'present' => 'Present',
+    'leave_blank_present' => 'Leave blank if present',
+    'no_experiences_found' => 'No experiences found',
+
 
 
 ];
