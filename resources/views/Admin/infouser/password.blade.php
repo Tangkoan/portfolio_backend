@@ -109,13 +109,25 @@
                         </div>
 
                         <div class="pt-6 flex items-center gap-4 border-t border-input-border mt-4">
+                            {{-- ការពារប៊ូតុង Update ដោយប្រើ Permission --}}
                             <button type="submit" 
-                                    class="bg-primary hover:opacity-90 text-white font-medium py-2.5 px-8 rounded-lg transition-all flex items-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
-                                    :disabled="isLoading">
+                                    @can('update-password')
+                                        {{-- បើមានសិទ្ធិ អនុញ្ញាតអោយបញ្ជូន Form ជាធម្មតា --}}
+                                    @else
+                                        disabled
+                                    @endcan
+                                    class="bg-primary text-white font-medium py-2.5 px-8 rounded-lg transition-all flex items-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-100 hover:opacity-90"
+                                    :disabled="isLoading || {{ auth()->user()->cannot('update-password') ? 'true' : 'false' }}">
+                                
                                 <i class="ri-key-2-line text-lg" x-show="!isLoading"></i>
                                 <i class="ri-loader-4-line text-lg animate-spin" x-show="isLoading" style="display: none;"></i>
                                 <span x-text="isLoading ? '{{ __('messages.updating') }}' : '{{ __('messages.update_password') }}'"></span>
                             </button>
+                            
+                            {{-- បង្ហាញសារព្រមានបើសិនជាគាត់អត់មានសិទ្ធិ --}}
+                            @cannot('update-password')
+                                <span class="text-red-500 text-sm italic"><i class="ri-error-warning-line"></i> អ្នកមិនមានសិទ្ធិប្តូរពាក្យសម្ងាត់ទេ</span>
+                            @endcannot
                         </div>
 
                     </div>

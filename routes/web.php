@@ -46,12 +46,11 @@ Route::get('/', function () {
 */
 
 // Route កំណត់ភាសា
-Route::get('/lang/{locale}', function ($locale) {
-    // កំណត់ភាសាដែលអនុញ្ញាត (English និង Khmer)
+Route::get('/change-language/{locale}', function ($locale) {
     if (in_array($locale, ['en', 'km'])) {
         Session::put('locale', $locale);
     }
-    return redirect()->back(); // ត្រឡប់ទៅទំព័រដើមវិញ
+    return redirect()->back(); 
 })->name('switch.language');
 
 
@@ -106,11 +105,13 @@ Route::middleware('auth')->group(function () {
 
         // User Info
         Route::get('/profile', [UserController::class, 'profile'])->name('profile');
-        Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/profile', [UserController::class, 'updateProfile'])
+            ->name('profile.update')
+            ->middleware('permission:update-profile');
 
         // Change Password
         Route::get('/password', [UserController::class, 'password'])->name('password');
-        Route::put('/password', [UserController::class, 'updatePassword'])->name('password.update');
+        Route::put('/password', [UserController::class, 'updatePassword'])->name('password.update')->middleware('permission:update-password');
 
         
         // ======================
