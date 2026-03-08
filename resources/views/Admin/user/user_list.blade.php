@@ -1,5 +1,5 @@
 @extends('admin.dashboard')
-
+<title>@yield('title', __('messages.user_management'))</title>
 @section('content')
 
 <div class="w-full h-full px-1 py-1" x-data="userManagement()">

@@ -295,4 +295,11 @@ return [
     'techno_updated' => 'Technology updated successfully.',
     'techno_deleted' => 'Technology deleted successfully.',
     'image' => 'Image',
+
+    'rule_management' => "Rule Management",
+    'activity_management' => "Activity Management",
+    'theme_management' => "Theme Management",
+    'shop_info' => "Shop Info",
+    'technologies_management' => "Technologies Management",
+
 ];

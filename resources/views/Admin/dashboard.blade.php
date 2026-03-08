@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<title>@yield('title', __('messages.dashboard'))</title>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -219,6 +221,7 @@
         });
     </script>
 </head>
+
 
 <body class="antialiased {{ App::getLocale() == 'km' ? 'font-khmer' : 'font-sans' }} bg-page-bg preload font-sans flex h-screen overflow-hidden text-gray-800 dark:text-gray-100 transition-colors duration-300">
 

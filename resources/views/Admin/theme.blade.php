@@ -1,4 +1,5 @@
 @extends('admin.dashboard')
+<title>@yield('title', __('messages.theme_management'))</title>
 
 <style>
     /* សម្រាប់ Mobile (Default) */

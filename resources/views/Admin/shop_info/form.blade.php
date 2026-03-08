@@ -1,5 +1,5 @@
 @extends('admin.dashboard')
-
+<title>@yield('title', __('messages.shop_info'))</title>
 @section('content')
 
 @if ($errors->any())

@@ -295,4 +295,15 @@ return [
     'certificates'        => 'វិញ្ញាបនបត្រ',
     'tools'        => 'កម្មវិធីជំនួយ',
     'about_me'        => 'អំពីខ្ញុំ',
+
+    'rule_management' => "ការគ្រប់គ្រងច្បាប់ប្រើប្រាស់",
+    'activity_management' => "សកម្មភាពអ្នកប្រើប្រាស់",
+    'theme_management' => "ការកំណត់ពណ៌",
+    'shop_info' => "ព័ត៌មានហាង",
+    'technologies_management' => "Technologies Management",
+
+
+
+
+
 ];
