@@ -153,12 +153,26 @@
                     <span>{{ __('messages.btn_reset') }}</span>
                 </button>
 
-                <button type="button" @click="$store.theme.save()" :disabled="$store.theme.isSaving"
-                    class="px-6 py-2.5 rounded-xl bg-gradient-to-r btn-primary text-white font-bold shadow-lg shadow-blue-500/30 flex items-center gap-2 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
-                    :class="$store.theme.isSaving ? 'scale-100' : 'hover:scale-105 hover:shadow-blue-500/50'">
+                <button 
+                    {{-- ១. បើមានសិទ្ធិ ទើបឱ្យមានមុខងារ Click និង Alpine --}}
+                    @can('theme-save')
+                        type="button"
+                        @click="$store.theme.save()"
+                        :disabled="$store.theme.isSaving"
+                    {{-- ២. បើគ្មានសិទ្ធិ បិទចោលតែម្តង (គ្មាន @click គ្មាន Alpine) --}}
+                    @else
+                        type="button"
+                        disabled
+                    @endcan
 
+                    {{-- Style ខាងក្រោមនេះនៅរក្សាទុកដដែល ត្រឹមត្រូវល្អហើយ --}}
+                    class="px-6 py-2.5 rounded-xl bg-gradient-to-r btn-primary text-white font-bold shadow-lg shadow-blue-500/30 flex items-center gap-2 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+                    :class="$store.theme.isSaving ? 'scale-100' : 'hover:scale-105 hover:shadow-blue-500/50'"
+                >
+                    {{-- Icon ធម្មតា --}}
                     <i x-show="!$store.theme.isSaving" class="ri-save-3-fill text-lg"></i>
 
+                    {{-- Icon វិលៗពេលកំពុង Save --}}
                     <svg x-show="$store.theme.isSaving" class="animate-spin h-5 w-5 text-white"
                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
@@ -168,6 +182,7 @@
                         </path>
                     </svg>
 
+                    {{-- អក្សរលើ Button --}}
                     <span x-text="$store.theme.isSaving ? '{{ __('messages.btn_saving') }}' : '{{ __('messages.btn_save_changes') }}'"></span>
                 </button>
             </div>

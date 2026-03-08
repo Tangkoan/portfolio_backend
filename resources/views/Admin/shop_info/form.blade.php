@@ -34,11 +34,25 @@
                 </div>
 
                 {{-- Submit Button --}}
-                <button type="submit" 
-                    class="inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-semibold rounded-xl text-white bg-primary hover:opacity-90 shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5">
-                    <i class="ri-save-line mr-2 text-lg"></i>
-                    <span>{{ __('messages.save_changes') }}</span>
+                <button 
+                    {{-- បើមាន Permission ទើបឱ្យប្រើ Type Submit និង Alpine --}}
+                    @can('shop-info-save')
+                        type="submit"
+                        :disabled="$store.theme.isSaving"
+                    {{-- បើគ្មាន Permission គឺបិទជិតតែម្តង (Type Button ការពារការ Submit) --}}
+                    @else
+                        type="button"
+                        disabled
+                    @endcan
+                    
+                    class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 rounded-md font-semibold text-white transition duration-150 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <span x-text="$store.theme.isSaving ? '{{ __('messages.btn_saving') }}' : '{{ __('messages.btn_save_changes') }}'"></span>
                 </button>
+
+
+
+                
             </div>
 
             <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">

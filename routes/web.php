@@ -95,7 +95,7 @@ Route::middleware('auth')->group(function () {
 
         // Theme
         Route::view('/theme', 'admin.theme')->name('theme')->middleware('permission:theme-color');
-        Route::post('/theme/update', [ThemeController::class, 'update'])->name('theme.update')->middleware('permission:theme-color');
+        Route::post('/theme/update', [ThemeController::class, 'update'])->name('theme.update')->middleware('permission:theme-save');
 
         // User Info
         Route::get('/profile', [UserController::class, 'profile'])->name('profile');
@@ -110,8 +110,8 @@ Route::middleware('auth')->group(function () {
         // Shop Info CRUD
         // ======================
         Route::controller(ShopInfoController::class)->group(function () {
-            Route::get('/shop-info', [ShopInfoController::class, 'index'])->name('shop_info.index');
-            Route::post('/shop-info/save', [ShopInfoController::class, 'save'])->name('shop_info.save');
+            Route::get('/shop-info', [ShopInfoController::class, 'index'])->name('shop_info.index')->middleware('permission:setting-shop_info');
+            Route::post('/shop-info/save', [ShopInfoController::class, 'save'])->name('shop_info.save')->middleware('permission:shop-info-save');            
         });
         
         // ======================
