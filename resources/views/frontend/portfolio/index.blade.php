@@ -13,50 +13,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $about->name ?? 'Portfolio' }} | Software Engineer</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Outfit"', 'sans-serif'],
-                    },
-                    colors: {
-                        accent: {
-                            500: '#3b82f6', 
-                            600: '#2563eb',
-                        }
-                    },
-                    animation: {
-                        'marquee': 'marquee 40s linear infinite',
-                        'blob': 'blob 10s infinite alternate',
-                    },
-                    keyframes: {
-                        marquee: {
-                            '0%': { transform: 'translateX(0%)' },
-                            '100%': { transform: 'translateX(-50%)' },
-                        },
-                        blob: {
-                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
-                            '100%': { transform: 'translate(30px, 50px) scale(1.2)' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    
 
     <style>
-        body {
-            transition: background-color 0.5s ease, color 0.5s ease;
-        }
-        
+        /* រក្សាទុកតែ Style ដែលទាក់ទងនឹង Glass effect និង Scrollbar ប៉ុណ្ណោះ */
+        body { transition: background-color 0.5s ease, color 0.5s ease; }
         .glass-2026 {
             background: rgba(255, 255, 255, 0.5);
             backdrop-filter: blur(24px);
