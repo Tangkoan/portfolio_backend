@@ -404,5 +404,12 @@ return [
     'no_socials_found' => 'No social links found',
 
 
+    'projects' => 'Projects',
+    'experience' => 'Experience',
+    'stack' => 'Stack',
+    'lets_talk' => 'Let\'s Talk',
+    'software_engineer' => 'Software Engineer',
+
+
 
 ];

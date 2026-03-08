@@ -29,41 +29,48 @@ use App\Http\Controllers\Frontend\PortfolioController;
 use Illuminate\Support\Facades\Session;
 
 
+/*
+|--------------------------------------------------------------------------
+| ផ្នែកទំព័រដើម (Portfolio)
+|--------------------------------------------------------------------------
+*/
+
+// ជម្រើសទី ១៖ (ណែនាំ) ប្រើ '/' ជាទំព័រ Portfolio ផ្ទាល់តែម្តង (ឧ. kuytangkoan.online/)
+Route::get('/', [PortfolioController::class, 'index'])->name('portfolio.home');
+
+/* // ជម្រើសទី ២៖ បើនៅតែចង់ប្រើកន្ទុយ /kuytangkoan អាចប្រើកូដនេះវិញ (លុបជម្រើសទី១ចោល)
 Route::get('/kuytangkoan', [PortfolioController::class, 'index'])->name('portfolio.home');
-
-
+Route::get('/', function () {
+    return redirect()->route('portfolio.home'); // វានឹងរុញពី / ទៅរក /kuytangkoan ដោយស្វ័យប្រវត្តិ
+});
+*/
 
 // Route កំណត់ភាសា
-        Route::get('/lang/{locale}', function ($locale) {
-            // កំណត់ភាសាដែលអនុញ្ញាត (English និង Khmer)
-            if (in_array($locale, ['en', 'km'])) {
-                Session::put('locale', $locale);
-            }
-            return redirect()->back(); // ត្រឡប់ទៅទំព័រដើមវិញ
-        })->name('switch.language');
-// End Route កំណត់ភាសា
-
+Route::get('/lang/{locale}', function ($locale) {
+    // កំណត់ភាសាដែលអនុញ្ញាត (English និង Khmer)
+    if (in_array($locale, ['en', 'km'])) {
+        Session::put('locale', $locale);
+    }
+    return redirect()->back(); // ត្រឡប់ទៅទំព័រដើមវិញ
+})->name('switch.language');
 
 
 /*
 |--------------------------------------------------------------------------
-| ផ្នែកទី ១: Route សម្រាប់អ្នកមិនទាន់ Login (Guest)
+| ផ្នែកសម្រាប់អ្នកមិនទាន់ Login (Guest)
 |--------------------------------------------------------------------------
 */
 
-// ១. បើចូលតាម Link ទទេ (/) អោយរុញទៅ Login ភ្លាម
-Route::get('/', function () {
-    return redirect()->route('login');
-});
-
-// អនុញ្ញាតអោយចូលបានតែ ៥ ដងប៉ុណ្ណោះក្នុង ១ នាទី (60s)
+// អនុញ្ញាតអោយចូលបានតែ ៥ ដងប៉ុណ្ណោះក្នុង ១ នាទី (60s) ដើម្បីការពារការវាយប្រហារ (Brute Force)
 Route::middleware(['guest', 'throttle:5,1'])->group(function () {
+    
     // បង្ហាញ Login Form
     // សំខាន់៖ ត្រូវតែដាក់ name('login') ដើម្បីអោយ Middleware 'auth' ស្គាល់កន្លែងដែលត្រូវរុញមកពេលគេមិនទាន់ Login
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 
     // Post ទិន្នន័យ Login
     Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+    
 });
 
 // ==========================

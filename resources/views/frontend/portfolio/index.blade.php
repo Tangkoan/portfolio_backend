@@ -1,28 +1,26 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth" x-data="{ 
-    darkMode: localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches),
-    lang: 'en',
-    init() {
-        this.$watch('darkMode', val => {
-            localStorage.setItem('theme', val ? 'dark' : 'light');
-        });
-    }
-}" :class="{ 'dark': darkMode }">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $about->name ?? 'Portfolio' }} | Software Engineer</title>
-    
+    <title>{{ $about->name ?? 'Portfolio' }} | {{ __('messages.software_engineer') }}</title>
+
+    @if(isset($shop) && $shop->fav)
+        <link rel="icon" type="image/png" href="{{ asset('storage/' . $shop->fav) }}">
+    @elseif(isset($about) && $about->image)
+        {{-- បើអត់មាន Logo ក្រុមហ៊ុនទេ វានឹងយករូប Profile របស់អ្នកធ្វើជា Logo Tab ជំនួស --}}
+        <link rel="icon" type="image/png" href="{{ asset('storage/' . $about->image) }}">
+    @else
+        <link rel="icon" href="{{ asset('favicon.ico') }}">
+    @endif
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     
-
     <style>
-        /* រក្សាទុកតែ Style ដែលទាក់ទងនឹង Glass effect និង Scrollbar ប៉ុណ្ណោះ */
         body { transition: background-color 0.5s ease, color 0.5s ease; }
         .glass-2026 {
             background: rgba(255, 255, 255, 0.5);
@@ -53,8 +51,35 @@
         .dark ::-webkit-scrollbar-thumb { background: #475569; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
+
+    {{-- Script សម្រាប់ឆែក Dark Mode ភ្លាមៗមុនពេលទំព័រដើរ ដើម្បីកុំឱ្យលោតពន្លឺស (Flash White) --}}
+    <script>
+        (function() {
+            const isDark = localStorage.getItem('theme_mode') === 'dark' || 
+                          (!('theme_mode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
 </head>
-<body class="bg-slate-50 text-slate-900 dark:bg-[#0B1120] dark:text-white overflow-x-hidden relative selection:bg-accent-500 selection:text-white">
+
+{{-- Alpine Component គ្រប់គ្រងលើ Body ផ្ទាល់ --}}
+<body class="bg-slate-50 text-slate-900 dark:bg-[#0B1120] dark:text-white overflow-x-hidden relative selection:bg-accent-500 selection:text-white"
+      x-data="{ 
+          darkMode: localStorage.getItem('theme_mode') === 'dark' || (!('theme_mode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches),
+          toggleTheme() {
+              this.darkMode = !this.darkMode;
+              localStorage.setItem('theme_mode', this.darkMode ? 'dark' : 'light');
+              if (this.darkMode) {
+                  document.documentElement.classList.add('dark');
+              } else {
+                  document.documentElement.classList.remove('dark');
+              }
+          }
+      }">
 
     <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10 transition-opacity duration-700">
         <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-blue-200/50 dark:bg-blue-900/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob"></div>
@@ -62,10 +87,13 @@
         <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMTI4LCAxMjgsIDEyOCwgMC4xNSkiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)] dark:opacity-30 opacity-60"></div>
     </div>
 
-    <div x-data="{ scrolled: false }" @scroll.window="scrolled = (window.pageYOffset > 20)" 
+    {{-- Navigation Bar --}}
+    <div x-data="{ scrolled: false, languageOpen: false }" @scroll.window="scrolled = (window.pageYOffset > 20)" 
          :class="{ 'glass-nav shadow-sm': scrolled, 'bg-transparent': !scrolled }"
          class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+        
         <nav class="px-4 py-4 md:py-5 max-w-7xl mx-auto flex items-center justify-between">
+            
             <a href="#home" class="flex items-center gap-3 group">
                 <div class="w-10 h-10 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center font-black text-lg transition-transform group-hover:scale-105">
                     {{ substr($about->name ?? 'P', 0, 1) }}
@@ -74,23 +102,58 @@
             </a>
 
             <div class="hidden md:flex items-center space-x-1 glass-2026 px-2 py-1 rounded-full">
-                <a href="#projects" class="px-5 py-2 rounded-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-800 transition-all">Projects</a>
-                <a href="#experience" class="px-5 py-2 rounded-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-800 transition-all">Experience</a>
-                <a href="#tools" class="px-5 py-2 rounded-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-800 transition-all">Stack</a>
+                <a href="#projects" class="px-5 py-2 rounded-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-800 transition-all">{{ __('messages.projects') ?? 'Projects' }}</a>
+                <a href="#experience" class="px-5 py-2 rounded-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-800 transition-all">{{ __('messages.experience') ?? 'Experience' }}</a>
+                <a href="#tools" class="px-5 py-2 rounded-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-800 transition-all">{{ __('messages.stack') ?? 'Stack' }}</a>
             </div>
             
             <div class="flex items-center gap-3">
-                <button @click="lang = lang === 'en' ? 'km' : 'en'" class="p-2.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                    <span x-text="lang"></span>
-                </button>
+                
+                {{-- Language Switcher (យកលំនាំតាម Admin Dashboard) --}}
+                <div class="relative">
+                    <button @click="languageOpen = !languageOpen" class="flex items-center gap-2 p-2.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300">
+                        @if(App::getLocale() == 'km')
+                            <img src="https://flagcdn.com/w40/kh.png" alt="Khmer" class="w-5 h-auto rounded-sm shadow-sm object-cover">
+                            <span class="text-xs font-bold uppercase tracking-wider hidden sm:block">KH</span>
+                        @else
+                            <img src="https://flagcdn.com/w40/us.png" alt="English" class="w-5 h-auto rounded-sm shadow-sm object-cover">
+                            <span class="text-xs font-bold uppercase tracking-wider hidden sm:block">EN</span>
+                        @endif
+                    </button>
 
-                <button @click="darkMode = !darkMode" class="p-2.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300">
+                    <div x-show="languageOpen" 
+                         @click.outside="languageOpen = false"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 scale-95"
+                         x-transition:enter-end="opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-75"
+                         x-transition:leave-start="opacity-100 scale-100"
+                         x-transition:leave-end="opacity-0 scale-95"
+                         class="absolute right-0 mt-2 w-40 glass-2026 rounded-lg shadow-lg py-1 border border-slate-200 dark:border-slate-700 z-50 origin-top-right"
+                         style="display: none;">
+                        
+                        <a href="{{ route('switch.language', 'km') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-800 transition-colors {{ App::getLocale() == 'km' ? 'bg-white/60 dark:bg-slate-800 font-semibold' : '' }}">
+                            <img src="https://flagcdn.com/w40/kh.png" alt="Khmer" class="w-5 h-auto rounded-sm shadow-sm">
+                            <span>ភាសាខ្មែរ</span>
+                            @if(App::getLocale() == 'km') <i class="ri-check-line ml-auto text-accent-500"></i> @endif
+                        </a>
+
+                        <a href="{{ route('switch.language', 'en') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-800 transition-colors {{ App::getLocale() == 'en' ? 'bg-white/60 dark:bg-slate-800 font-semibold' : '' }}">
+                            <img src="https://flagcdn.com/w40/us.png" alt="English" class="w-5 h-auto rounded-sm shadow-sm">
+                            <span>English</span>
+                            @if(App::getLocale() == 'en') <i class="ri-check-line ml-auto text-accent-500"></i> @endif
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Dark Mode Toggle --}}
+                <button type="button" @click="toggleTheme()" class="p-2.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300">
                     <i class="ri-moon-fill text-lg" x-show="!darkMode"></i>
                     <i class="ri-sun-fill text-lg" x-show="darkMode" style="display: none;"></i>
                 </button>
 
                 <a href="#contact" class="hidden sm:inline-block bg-accent-600 text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-accent-500 hover:shadow-lg hover:shadow-accent-500/30 transition-all">
-                    Let's Talk
+                    {{ __('messages.lets_talk') ?? "Let's Talk" }}
                 </a>
             </div>
         </nav>
@@ -101,15 +164,17 @@
             <div class="lg:col-span-7 order-2 lg:order-1 text-center lg:text-left" data-aos="fade-right" data-aos-duration="1000">
                 <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-2026 mb-6">
                     <span class="w-2 h-2 rounded-full bg-accent-500 animate-pulse"></span>
-                    <span class="text-xs md:text-sm font-bold uppercase tracking-widest text-slate-600 dark:text-slate-300" x-text="lang === 'en' ? 'Available for work' : 'ស្វាគមន៍សម្រាប់ការងារ'"></span>
+                    <span class="text-xs md:text-sm font-bold uppercase tracking-widest text-slate-600 dark:text-slate-300">
+                        {{ App::getLocale() == 'en' ? 'Available for work' : 'ស្វាគមន៍សម្រាប់ការងារ' }}
+                    </span>
                 </div>
                 
                 <h1 class="text-5xl md:text-7xl lg:text-[5rem] font-black leading-[1.05] tracking-tight mb-6 text-slate-900 dark:text-white">
-                    <span x-show="lang === 'en'">Crafting digital</span>
-                    <span x-show="lang === 'km'">បង្កើតបទពិសោធន៍</span>
+                    <span>{{ App::getLocale() == 'en' ? 'Crafting digital' : 'បង្កើតបទពិសោធន៍' }}</span>
                     <br />
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-accent-500 to-indigo-500" x-show="lang === 'en'">experiences.</span>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-accent-500 to-indigo-500" x-show="lang === 'km'">ឌីជីថលពិតៗ.</span>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-accent-500 to-indigo-500">
+                        {{ App::getLocale() == 'en' ? 'experiences.' : 'ឌីជីថលពិតៗ.' }}
+                    </span>
                 </h1>
                 
                 <p class="text-lg md:text-2xl text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto lg:mx-0 font-medium leading-relaxed">
@@ -118,10 +183,10 @@
 
                 <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                     <a href="#projects" class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-4 rounded-full text-base font-bold hover:scale-105 transition-transform flex items-center justify-center gap-2 shadow-xl">
-                        <span x-text="lang === 'en' ? 'View Selected Work' : 'មើលស្នាដៃ'"></span> <i class="ri-arrow-right-line"></i>
+                        <span>{{ App::getLocale() == 'en' ? 'View Selected Work' : 'មើលស្នាដៃ' }}</span> <i class="ri-arrow-right-line"></i>
                     </a>
                     <a href="{{ asset('path/to/your/cv.pdf') }}" target="_blank" class="glass-2026 px-8 py-4 rounded-full text-base font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 border border-slate-300 dark:border-slate-700">
-                        <i class="ri-file-download-line text-xl"></i> <span x-text="lang === 'en' ? 'Download CV' : 'ទាញយក CV'"></span>
+                        <i class="ri-file-download-line text-xl"></i> <span>{{ App::getLocale() == 'en' ? 'Download CV' : 'ទាញយក CV' }}</span>
                     </a>
                 </div>
             </div>
@@ -141,7 +206,7 @@
                             <i class="ri-code-s-slash-line"></i>
                         </div>
                         <div>
-                            <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-bold uppercase" x-text="lang === 'en' ? 'Developer' : 'អ្នកសរសេរកូដ'"></p>
+                            <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-bold uppercase">{{ App::getLocale() == 'en' ? 'Developer' : 'អ្នកសរសេរកូដ' }}</p>
                             <p class="text-sm md:text-base font-black text-slate-900 dark:text-white">{{ $about->name ?? 'Pro' }}</p>
                         </div>
                     </div>
@@ -173,8 +238,8 @@
     <section id="tools" class="py-24 px-4 relative z-10">
         <div class="max-w-5xl mx-auto text-center">
             <div data-aos="fade-up" class="mb-14">
-                <h2 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4" x-text="lang === 'en' ? 'The Stack' : 'ឧបករណ៍បច្ចេកវិទ្យា'"></h2>
-                <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 font-medium" x-text="lang === 'en' ? 'Tools and platforms I use to build robust applications.' : 'កម្មវិធី និងឧបករណ៍ដែលខ្ញុំប្រើប្រាស់ជាប្រចាំ។'"></p>
+                <h2 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4">{{ App::getLocale() == 'en' ? 'The Stack' : 'ឧបករណ៍បច្ចេកវិទ្យា' }}</h2>
+                <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 font-medium">{{ App::getLocale() == 'en' ? 'Tools and platforms I use to build robust applications.' : 'កម្មវិធី និងឧបករណ៍ដែលខ្ញុំប្រើប្រាស់ជាប្រចាំ។' }}</p>
             </div>
             
             <div class="flex flex-wrap justify-center gap-4 md:gap-6">
@@ -197,8 +262,8 @@
         <div class="max-w-7xl mx-auto">
             <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6" data-aos="fade-up">
                 <div>
-                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight mb-4" x-text="lang === 'en' ? 'Selected Projects' : 'ស្នាដៃលេចធ្លោ'"></h2>
-                    <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 font-medium max-w-2xl" x-text="lang === 'en' ? 'A showcase of my recent work and technical problem-solving.' : 'ការបង្ហាញពីស្នាដៃថ្មីៗ និងការដោះស្រាយបញ្ហាបច្ចេកទេស។'"></p>
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight mb-4">{{ App::getLocale() == 'en' ? 'Selected Projects' : 'ស្នាដៃលេចធ្លោ' }}</h2>
+                    <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 font-medium max-w-2xl">{{ App::getLocale() == 'en' ? 'A showcase of my recent work and technical problem-solving.' : 'ការបង្ហាញពីស្នាដៃថ្មីៗ និងការដោះស្រាយបញ្ហាបច្ចេកទេស។' }}</p>
                 </div>
                 
                 <a href="https://github.com/Tangkoan" target="_blank" class="group flex items-center gap-2 glass-2026 px-6 py-3 rounded-full text-base font-bold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800 transition-all shadow-sm hover:shadow-md border border-slate-200 dark:border-slate-700">
@@ -230,7 +295,7 @@
                 @empty
                     <div class="col-span-full py-24 glass-2026 rounded-[2rem] flex flex-col items-center justify-center text-slate-500 dark:text-slate-400">
                         <i class="ri-code-box-line text-5xl mb-4 opacity-50"></i>
-                        <p class="font-medium text-lg" x-text="lang === 'en' ? 'Cooking new projects...' : 'កំពុងរៀបចំគម្រោងថ្មី...'"></p>
+                        <p class="font-medium text-lg">{{ App::getLocale() == 'en' ? 'Cooking new projects...' : 'កំពុងរៀបចំគម្រោងថ្មី...' }}</p>
                     </div>
                 @endforelse
             </div>
@@ -240,15 +305,15 @@
     <section id="experience" class="py-24 px-4 relative z-10">
         <div class="max-w-4xl mx-auto">
             <div class="text-center mb-20" data-aos="fade-up">
-                <h2 class="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-4" x-text="lang === 'en' ? 'Professional Journey' : 'បទពិសោធន៍ការងារ'"></h2>
-                <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 font-medium" x-text="lang === 'en' ? 'My timeline of growth and value delivery.' : 'ពេលវេលានៃការរីកចម្រើន និងការបង្កើតតម្លៃ។'"></p>
+                <h2 class="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-4">{{ App::getLocale() == 'en' ? 'Professional Journey' : 'បទពិសោធន៍ការងារ' }}</h2>
+                <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 font-medium">{{ App::getLocale() == 'en' ? 'My timeline of growth and value delivery.' : 'ពេលវេលានៃការរីកចម្រើន និងការបង្កើតតម្លៃ។' }}</p>
             </div>
 
             <div class="relative space-y-8 md:space-y-12 before:absolute before:inset-0 before:ml-6 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-1 before:bg-gradient-to-b before:from-transparent before:via-slate-300 dark:before:via-slate-700 before:to-transparent">
                 @foreach($experiences as $index => $exp)
                     @php 
                         $startYear = \Carbon\Carbon::parse($exp->start_day)->format('M Y');
-                        $endYear = $exp->end_day ? \Carbon\Carbon::parse($exp->end_day)->format('M Y') : 'Present';
+                        $endYear = $exp->end_day ? \Carbon\Carbon::parse($exp->end_day)->format('M Y') : (App::getLocale() == 'en' ? 'Present' : 'បច្ចុប្បន្ន');
                     @endphp
                     
                     <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group" data-aos="fade-up" data-aos-delay="{{ $index * 100 }}">
@@ -274,7 +339,7 @@
     <section x-data="{ isModalOpen: false, modalImage: '' }" class="py-24 px-4 relative z-10 border-t border-slate-200/50 dark:border-white/10">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16" data-aos="fade-up">
-                <h2 class="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-4" x-text="lang === 'en' ? 'Certifications' : 'វិញ្ញាបនបត្រ'"></h2>
+                <h2 class="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-4">{{ App::getLocale() == 'en' ? 'Certifications' : 'វិញ្ញាបនបត្រ' }}</h2>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
@@ -307,8 +372,8 @@
 
     <footer id="contact" class="py-24 px-4 relative z-10 glass-2026 mt-10">
         <div class="max-w-4xl mx-auto text-center" data-aos="fade-up">
-            <h2 class="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-6 tracking-tight" x-text="lang === 'en' ? 'Let\'s collaborate.' : 'តោះសហការគ្នា.'"></h2>
-            <p class="text-slate-600 dark:text-slate-400 mb-12 max-w-lg mx-auto font-medium text-lg md:text-xl" x-text="lang === 'en' ? 'Got a project? Drop me a line if you want to work together.' : 'មានគម្រោងមែនទេ? ទាក់ទងមកខ្ញុំបើអ្នកចង់ធ្វើការជាមួយគ្នា។'"></p>
+            <h2 class="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-6 tracking-tight">{{ App::getLocale() == 'en' ? 'Let\'s collaborate.' : 'តោះសហការគ្នា.' }}</h2>
+            <p class="text-slate-600 dark:text-slate-400 mb-12 max-w-lg mx-auto font-medium text-lg md:text-xl">{{ App::getLocale() == 'en' ? 'Got a project? Drop me a line if you want to work together.' : 'មានគម្រោងមែនទេ? ទាក់ទងមកខ្ញុំបើអ្នកចង់ធ្វើការជាមួយគ្នា។' }}</p>
             
             <a href="mailto:kuytangkoan@gmail.com" class="inline-flex items-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-10 py-5 rounded-full font-bold text-lg hover:scale-105 transition-transform shadow-xl mb-16 border border-slate-700 dark:border-slate-300">
                 kuytangkoan@gmail.com <i class="ri-send-plane-fill text-xl"></i>
@@ -328,15 +393,12 @@
 
             <div class="pt-10 border-t border-slate-300/30 dark:border-white/10 flex flex-col items-center gap-8">
                 <div class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-widest flex flex-col md:flex-row justify-between items-center gap-4 w-full">
-                    <p>© {{ date('Y') }} <span x-show="lang === 'en'">Kuy Tangkoan</span><span x-show="lang === 'km'">គុយ តាំងគន់</span></p>
-
-                    
-                    
-                    <p> <span x-show="lang === 'en'">Designed with</span><span x-show="lang === 'km'">រចនាដោយដាក់</span><i class="ri-heart-fill text-red-500 animate-pulse text-base mx-1"></i> <span x-show="lang === 'en'">IN</span><span x-show="lang === 'km'">នៅ</span> <span x-text="lang === 'en' ? 'Siem Reap' : 'សៀមរាប'"></span></p>
+                    <p>© {{ date('Y') }} <span>{{ App::getLocale() == 'en' ? 'Kuy Tangkoan' : 'គុយ តាំងគន់' }}</span></p>
+                    <p><span>{{ App::getLocale() == 'en' ? 'Designed with' : 'រចនាដោយដាក់' }}</span><i class="ri-heart-fill text-red-500 animate-pulse text-base mx-1"></i> <span>{{ App::getLocale() == 'en' ? 'IN' : 'នៅ' }}</span> <span>{{ App::getLocale() == 'en' ? 'Siem Reap' : 'សៀមរាប' }}</span></p>
                 </div>
                 
                 <div class="inline-flex items-center gap-3 px-8 py-4 rounded-full glass-2026 border border-slate-300 dark:border-slate-700 shadow-md hover:scale-105 transition-transform">
-                    <span class="text-sm font-semibold text-slate-600 dark:text-slate-300 tracking-wide" x-text="lang === 'en' ? 'Proudly built with' : 'បង្កើតឡើងដោយប្រើ'"></span>
+                    <span class="text-sm font-semibold text-slate-600 dark:text-slate-300 tracking-wide">{{ App::getLocale() == 'en' ? 'Proudly built with' : 'បង្កើតឡើងដោយប្រើ' }}</span>
                     <div class="flex items-center gap-3">
                         <span class="text-sm md:text-base font-black text-[#FF2D20]">Laravel Blade</span>
                         <span class="text-slate-400 dark:text-slate-500 text-sm">+</span>
