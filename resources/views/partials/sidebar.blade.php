@@ -1,5 +1,5 @@
-<aside id="sidebar" class="bg-sidebar-bg text-sidebar-text w-72 h-screen flex flex-col flex-shrink-0 z-50 
-              fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-all duration-300
+<aside id="sidebar" class="bg-sidebar-bg text-sidebar-text w-72 h-screen flex flex-col flex-shrink-0 
+              fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-all duration-300 z-50
               border-r border-bor-color">
 
 
