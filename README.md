@@ -1,10 +1,22 @@
-1. Floder Project
-    Controllers/Admin សម្រាប់ដាក់ Controller របស់ Admin form
+# 🚀 Portfolio Backend (Laravel 12)
 
-    views/components គឺសម្រាប់ដាក់ File ដែលប្រកាសប្រើរួម
-        toast.blad.php
-        text-input.blade.php
+This is the core backend engine for my professional portfolio website. It manages projects, skills, and contact inquiries through a robust API and a clean administrative interface.
 
-    view/partials សម្រាប់ដាក់ header/sidebar/dashboard.blade.php(content របស់dashbaord)
+## 🛠️ Tech Stack
+- **Framework:** [Laravel 12](https://laravel.com/) (The latest & greatest)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **Database:** MySQL / PostgreSQL
+- **Authentication:** Laravel Sanitizer / Breeze
+- **Architecture:** RESTful API Design
 
-    view/admin/dashbaord.blade.php គឺជា master layout របស់ project ចំពោះ style គឺនៅក្នុងហ្នឹងច្រើនដើម្បីយកមកប្រើ
+## ✨ Key Features
+- **Project Management:** Full CRUD operations to manage portfolio items dynamically.
+- **Secure Contact API:** Handles contact form submissions with email notifications.
+- **Responsive Admin Panel:** A sleek dashboard built with Tailwind CSS to manage site content.
+- **Optimized Performance:** Utilizing Laravel 12's latest caching and performance enhancements.
+
+## 🚀 Getting Started
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/Tangkoan/portfolio_backend.git](https://github.com/Tangkoan/portfolio_backend.git)
